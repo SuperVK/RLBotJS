@@ -1,4 +1,4 @@
-const rlbot = require('../rlbot/rlbot.js');
+const rlbot = require('../rlbot.js');
 const fs = require('fs')
 const path = require('path')
 const port = Number(fs.readFileSync(path.join(__dirname, '/JSPythonAgent/port.cfg')).toString());
