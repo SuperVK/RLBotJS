@@ -1,7 +1,7 @@
 const Manager = require('./src/BotManager')
 
 module.exports = {
-    baseAgent: require('./src/baseAgent'),
+    BaseAgent: require('./src/baseAgent'),
     SimpleController: {
         throttle: 0,
         steer: 0,
