@@ -1,5 +1,7 @@
 # RLBotJS 
 
+## Example can be found at: https://github.com/RLBot/RLBotJavascriptExample
+
 ## Installation guide
 
 If you've installed a few other npm packages already, chances are doing `npm install rlbot` works.

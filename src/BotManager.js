@@ -2,40 +2,17 @@ var ref = require('ref');
 var ffi = require('ffi');
 var Struct = require('ref-struct');
 const path = require('path')
+const fs = require('fs')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
 
-var rlbot = require(path.join(__dirname, '/rlbot/rlbot_generated.js')).rlbot;
+var rlbot = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot;
 
-rlbot.BaseAgent = class {
-    constructor(name, team, index) {
-        this.name = name;
-        this.team = team;
-        this.index = index;
-        console.log('Initializing bot... name:' + this.name + ' team:' + this.team + ' id:' + this.index);
-    }
-
-    getOutput(gameTickPacket) {
-        throw new Error("Method 'getOutput()' must be implemented.");
-    }
-}
-
-rlbot.SimpleController = {
-    throttle: 0,
-    steer: 0,
-    pitch: 0,
-    roll: 0,
-    yaw: 0,
-    boost: false,
-    jump: false,
-    handbrake: false
-}
-
-rlbot.Manager = class {
-    constructor(port, botClass, ip = '127.0.0.1') {
-        this.port = port;
-        this.botClass = botClass;
+class BotManager {
+    constructor(port, ip = '127.0.0.1') {
+        this.port = port ? port : Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
+        this.botClass = undefined;
         this.ip = ip;
         this.bots = [];
         this.ByteBuffer = Struct({
@@ -45,7 +22,7 @@ rlbot.Manager = class {
             'size': ref.types.uint32
         });
 
-        this.interface = ffi.Library(path.join(__dirname, '/rlbot/RLBot_Core_Interface'), {
+        this.interface = ffi.Library(path.join(__dirname, '../rlbot/RLBot_Core_Interface'), {
             'IsInitialized': [ref.types.bool, []],
             'UpdateLiveDataPacketFlatbuffer': [this.ByteBuffer, []],
             'UpdatePlayerInputFlatbuffer': [ref.types.int32, [ref.types.uint64, ref.types.uint32]], // also 64 bit pointer
@@ -65,8 +42,14 @@ rlbot.Manager = class {
 
         console.log("Dll initialized!");
     }
-
-    start() {
+    /**
+     * starts the botManager...
+     * @param {BaseAgent} botClass Required
+     * @param {Number} port Optional, if you pass this in, make sure it matches with the port the python code uses!
+     */
+    start(botClass, port) {
+        if(port) this.port = port
+        this.botClass = botClass
         var server = net.createServer((socket) => {
             socket.setEncoding('ascii');
             socket.on('data', (data) => {
@@ -158,4 +141,5 @@ rlbot.Manager = class {
         }
     }
 }
-module.exports = rlbot;
+
+module.exports = BotManager
