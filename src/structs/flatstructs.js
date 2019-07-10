@@ -12,7 +12,7 @@ function Rotator(flat) {
 
 function Physics(flat) {
     this.location = new Vec3(flat.location())
-    this.rotation = new Rotator(flat.rotation())
+    this.rotation = flat.rotation() ? new Rotator(flat.rotation()) : null
     this.velocity = new Vec3(flat.velocity())
     this.angularVelocity = new Vec3(flat.angularVelocity())
 }
@@ -92,6 +92,18 @@ function GameTickPacket(flat) {
     }
 }
 
+function PredictionSlice(flat) {
+    this.gameSeconds = flat.gameSeconds()
+    this.physics = new Physics(flat.physics())
+}
+
+function BallPrediction(flat) {
+    this.slices = []
+    for(let s = 0; s < flat.slicesLength(); s++) {
+        this.slices.push(new PredictionSlice(flat.slices(s)))
+    }
+}
+
 module.exports = {
     Vec3: Vec3,
     Rotator: Rotator,
@@ -102,5 +114,6 @@ module.exports = {
     PlayerInfo: PlayerInfo,
     BoostPadState: BoostPadState,
     TeamInfo: TeamInfo,
-    GameTickPacket: GameTickPacket
+    GameTickPacket: GameTickPacket,
+    BallPrediction: BallPrediction
 }
