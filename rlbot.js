@@ -6,7 +6,7 @@ const path = require('path')
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
 
-var rlbot = require(path.join(__dirname, '/rlbot_generated.js')).rlbot;
+var rlbot = require(path.join(__dirname, '/rlbot/rlbot_generated.js')).rlbot;
 
 rlbot.BaseAgent = class {
     constructor(name, team, index) {
@@ -45,7 +45,7 @@ rlbot.Manager = class {
             'size': ref.types.uint32
         });
 
-        this.interface = ffi.Library(path.join(__dirname, 'RLBot_Core_Interface'), {
+        this.interface = ffi.Library(path.join(__dirname, '/rlbot/RLBot_Core_Interface'), {
             'IsInitialized': [ref.types.bool, []],
             'UpdateLiveDataPacketFlatbuffer': [this.ByteBuffer, []],
             'UpdatePlayerInputFlatbuffer': [ref.types.int32, [ref.types.uint64, ref.types.uint32]], // also 64 bit pointer
