@@ -4,7 +4,7 @@ var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
 
-const { GameTickPacket } = require('./structs/structs')
+const { GameTickPacket } = require('./structs/flatstructs')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
@@ -12,9 +12,9 @@ const net = require('net');
 var rlbot = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot;
 
 class BotManager {
-    constructor(port, ip = '127.0.0.1') {
+    constructor(botClass, port, ip = '127.0.0.1') {
+        this.botClass = botClass
         this.port = port ? port : Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
-        this.botClass = undefined;
         this.ip = ip;
         this.bots = [];
         this.ByteBuffer = Struct({
@@ -49,9 +49,7 @@ class BotManager {
      * @param {BaseAgent} botClass Required
      * @param {Number} port Optional, if you pass this in, make sure it matches with the port the python code uses!
      */
-    start(botClass, port) {
-        if(port) this.port = port
-        this.botClass = botClass
+    start() {
         var server = net.createServer((socket) => {
             socket.setEncoding('ascii');
             socket.on('data', (data) => {
@@ -60,12 +58,10 @@ class BotManager {
                     case 'add':
                         if (message.length < 4) break;
                         this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]));
-                        console.log(message.join(','));
                         break;
 
                     case 'remove':
                         this.bots[Number(message[1])] = null;
-                        console.log(message.join(','));
                         break;
 
                     default:
@@ -76,7 +72,7 @@ class BotManager {
 
         server.listen(this.port, this.ip, function () {
             var serverInfoJson = JSON.stringify(server.address());
-            console.log('TCP server listen on address : ' + serverInfoJson);
+            //console.log('TCP server listen on address : ' + serverInfoJson);
 
             server.on('close', function () {
                 console.log('TCP server socket is closed.');

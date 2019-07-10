@@ -12,5 +12,5 @@ module.exports = {
         jump: false,
         handbrake: false
     },
-    manager: new Manager()
+    Manager: Manager
 }

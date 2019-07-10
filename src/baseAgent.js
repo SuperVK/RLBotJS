@@ -3,7 +3,7 @@ class BaseAgent {
         this.name = name;
         this.team = team;
         this.index = index;
-        console.log('Initializing bot... name:' + this.name + ' team:' + this.team + ' id:' + this.index);
+        //console.log('Initializing bot... name:' + this.name + ' team:' + this.team + ' id:' + this.index);
     }
 
     getOutput(gameTickPacket) {
