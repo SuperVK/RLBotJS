@@ -4,6 +4,8 @@ var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
 
+const { GameTickPacket } = require('./structs/structs')
+
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
 
@@ -131,7 +133,9 @@ class BotManager {
         this.interface.Free(bytebuffer.ptr);
 
         var flatbuffer = new flatbuffers.ByteBuffer(Uint8Array.from(buffer));
-        var gameTickPacket = rlbot.flat.GameTickPacket.getRootAsGameTickPacket(flatbuffer);
+        var flatGameTickPacket = rlbot.flat.GameTickPacket.getRootAsGameTickPacket(flatbuffer);
+
+        let gameTickPacket = new GameTickPacket(flatGameTickPacket)
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
