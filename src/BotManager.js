@@ -31,6 +31,7 @@ class BotManager {
             'Free': [ref.types.void, [ref.types.uint64]], // same here
             'GetBallPrediction': [this.ByteBuffer, []],
             'UpdateFieldInfoFlatbuffer': [this.ByteBuffer, []],
+            'SendQuickChat': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
         });
 
         // this is a dll specific to windows
@@ -59,7 +60,7 @@ class BotManager {
                 switch (message[0]) {
                     case 'add':
                         if (message.length < 4) break;
-                        this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]));
+                        this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this);
                         break;
 
                     case 'remove':
@@ -116,6 +117,25 @@ class BotManager {
         var buffer = Buffer.from(builder.asUint8Array());
 
         this.interface.UpdatePlayerInputFlatbuffer(ref.address(buffer), buffer.length);
+    }
+
+    sendQuickChat(QuickChatSelection, index, teamOnly) {
+        console.log(QuickChatSelection, index, teamOnly)
+        let quickChat = rlbot.flat.QuickChat
+
+        let builder = new flatbuffers.Builder(0);
+
+        quickChat.startQuickChat(builder)
+        quickChat.addQuickChatSelection(builder, QuickChatSelection)
+        quickChat.addPlayerIndex(builder, index)
+        quickChat.addTeamOnly(teamOnly)
+        let quickchatOffset = quickChat.endQuickChat(builder)
+
+        builder.finish(quickchatOffset)
+
+        let buffer = Buffer.from(builder.asUint8Array())
+
+        this.interface.sendQuickChat(ref.address(buffer), buffer.length)
     }
 
     updateBots() {
