@@ -4,7 +4,7 @@ var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
 
-const { GameTickPacket } = require('./structs/flatstructs')
+const { GameTickPacket, BallPrediction, FieldInfo } = require('./structs/flatstructs')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
@@ -29,6 +29,8 @@ class BotManager {
             'UpdateLiveDataPacketFlatbuffer': [this.ByteBuffer, []],
             'UpdatePlayerInputFlatbuffer': [ref.types.int32, [ref.types.uint64, ref.types.uint32]], // also 64 bit pointer
             'Free': [ref.types.void, [ref.types.uint64]], // same here
+            'GetBallPrediction': [this.ByteBuffer, []],
+            'UpdateFieldInfoFlatbuffer': [this.ByteBuffer, []],
         });
 
         // this is a dll specific to windows
@@ -117,6 +119,19 @@ class BotManager {
     }
 
     updateBots() {
+        let gameTickPacket = this.getGameTickPacket()
+        let ballPrediction = this.getBallPrediction()
+        let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
+
+        for (let i = 0; i < this.bots.length; i++) {
+            if (this.bots[i] != null) {
+                var _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                this.sendInput(i, _input);
+            }
+        }
+    }
+
+    getGameTickPacket() {
         var bytebuffer = this.interface.UpdateLiveDataPacketFlatbuffer();
 
         var buffer = new Buffer(bytebuffer.size);
@@ -131,14 +146,42 @@ class BotManager {
         var flatbuffer = new flatbuffers.ByteBuffer(Uint8Array.from(buffer));
         var flatGameTickPacket = rlbot.flat.GameTickPacket.getRootAsGameTickPacket(flatbuffer);
 
-        let gameTickPacket = new GameTickPacket(flatGameTickPacket)
+        return new GameTickPacket(flatGameTickPacket)
+    }
 
-        for (let i = 0; i < this.bots.length; i++) {
-            if (this.bots[i] != null) {
-                var _input = this.bots[i].getOutput(gameTickPacket);
-                this.sendInput(i, _input);
-            }
-        }
+    getBallPrediction() {
+        let bytebuffer = this.interface.GetBallPrediction();
+
+        let buffer = new Buffer(bytebuffer.size);
+
+        this.windows.memcpy(
+            ref.address(buffer),
+            bytebuffer.ptr,
+            bytebuffer.size);
+
+        this.interface.Free(bytebuffer.ptr);
+
+        let flatbuffer = new flatbuffers.ByteBuffer(Uint8Array.from(buffer));
+        let flatBallPrediction = rlbot.flat.BallPrediction.getRootAsBallPrediction(flatbuffer);
+
+        return new BallPrediction(flatBallPrediction)
+    }
+
+    getFieldInfo() {
+        let bytebuffer = this.interface.UpdateFieldInfoFlatbuffer();
+
+        let buffer = new Buffer(bytebuffer.size);
+
+        this.windows.memcpy(
+            ref.address(buffer),
+            bytebuffer.ptr,
+            bytebuffer.size);
+
+        this.interface.Free(bytebuffer.ptr);
+
+        let flatbuffer = new flatbuffers.ByteBuffer(Uint8Array.from(buffer));
+        let flatFieldInfo = rlbot.flat.FieldInfo.getRootAsFieldInfo(flatbuffer);
+        return new FieldInfo(flatFieldInfo)
     }
 }
 

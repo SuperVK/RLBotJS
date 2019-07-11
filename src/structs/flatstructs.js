@@ -104,6 +104,28 @@ function BallPrediction(flat) {
     }
 }
 
+function BoostPad(flat) {
+    this.location = new Vec3(flat.location())
+    this.isFullBoost = flat.isFullBoost()
+}
+
+function GoalInfo(flat) {
+    this.teamNum = flat.teamNum()
+    this.location = new Vec3(flat.location())
+    this.direction = new Vec3(flat.direction())
+}
+
+function FieldInfo(flat) {
+    this.boostPads = []
+    for(let b = 0; b < flat.boostPadsLength(); b++) {
+        this.boostPads.push(new BoostPad(flat.boostPads(b)))
+    }
+    this.goals = []
+    for(let g = 0; g < flat.goalsLength(); g++) {
+        this.goals.push(new GoalInfo(flat.goals(g)))
+    }
+}
+
 module.exports = {
     Vec3: Vec3,
     Rotator: Rotator,
@@ -115,5 +137,8 @@ module.exports = {
     BoostPadState: BoostPadState,
     TeamInfo: TeamInfo,
     GameTickPacket: GameTickPacket,
-    BallPrediction: BallPrediction
+    BallPrediction: BallPrediction,
+    BoostPad: BoostPad,
+    GoalInfo: GoalInfo,
+    FieldInfo: FieldInfo
 }
