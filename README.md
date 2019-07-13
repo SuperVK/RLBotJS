@@ -1,6 +1,6 @@
 # RLBotJS 
 
-## Example can be found at: https://github.com/RLBot/RLBotJavascriptExample
+## Example can be found at: https://github.com/SuperVK/RLBotJavascriptExample
 
 ## Installation guide
 
