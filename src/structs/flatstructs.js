@@ -25,9 +25,16 @@ function Touch(flat) {
     this.team = flat.team()
 }
 
+function DropShotBallInfo(flat) {
+    this.absorbedForce = flat.absorbedForce()
+    this.damageIndex = flat.damageIndex()
+    this.forceAccumRecent = flat.forceAccumRecent()
+}
+
 function BallInfo(flat) {
     this.physics = new Physics(flat.physics())
     this.latestTouch = flat.latestTouch() ? new Touch(flat.latestTouch()) : null
+    this.dropShotInfo = new DropShotBallInfo(flat.dropShotInfo())
 }
 
 function GameInfo(flat) {
@@ -74,6 +81,10 @@ function TeamInfo(flat) {
     this.score = flat.score()
 }
 
+function DropshotTile(flat) {
+    this.tileState = flat.tileState()
+}
+
 function GameTickPacket(flat) {
     this.players = []
     for(let p = 0; p < flat.playersLength(); p++) {
@@ -83,9 +94,12 @@ function GameTickPacket(flat) {
     for(let b = 0; b < flat.boostPadStatesLength(); b++) {
         this.boostPadStates.push(new BoostPadState(flat.boostPadStates(b)))
     }
-    this.ball = new BallInfo(flat.ball())
+    this.ball = flat.ball() ? new BallInfo(flat.ball()) : null
     this.gameInfo = new GameInfo(flat.gameInfo())
-    //TODO: tileInformation
+    this.tileInformation = []
+    for(let t = 0; t < flat.tileInformationLength(); t++) {
+        this.tileInformation.push(new DropshotTile(flat.tileInformation(t)))
+    }
     this.teams = []
     for(let t = 0; t < flat.teamsLength(); t++) {
         this.teams.push(new TeamInfo(flat.teams(t)))
