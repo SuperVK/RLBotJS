@@ -120,7 +120,6 @@ class BotManager {
     }
 
     sendQuickChat(QuickChatSelection, index, teamOnly) {
-        console.log(QuickChatSelection, index, teamOnly)
         let quickChat = rlbot.flat.QuickChat
 
         let builder = new flatbuffers.Builder(0);
@@ -128,14 +127,14 @@ class BotManager {
         quickChat.startQuickChat(builder)
         quickChat.addQuickChatSelection(builder, QuickChatSelection)
         quickChat.addPlayerIndex(builder, index)
-        quickChat.addTeamOnly(teamOnly)
+        quickChat.addTeamOnly(builder, teamOnly)
         let quickchatOffset = quickChat.endQuickChat(builder)
 
         builder.finish(quickchatOffset)
 
         let buffer = Buffer.from(builder.asUint8Array())
 
-        this.interface.sendQuickChat(ref.address(buffer), buffer.length)
+        this.interface.SendQuickChat(ref.address(buffer), buffer.length)
     }
 
     updateBots() {
