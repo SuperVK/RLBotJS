@@ -1,15 +1,16 @@
 class BaseAgent {
-    constructor(name, team, index, _manager) {
+    constructor(name, team, index, fieldInfo) {
         this.name = name;
         this.team = team;
         this.index = index;
-        this._manager = _manager
+        this.fieldInfo = fieldInfo
+        this._manager = null; //set by the manager
         //console.log('Initializing bot... name:' + this.name + ' team:' + this.team + ' id:' + this.index);
 
     }
 
     //should be overwritten
-    getOutput(gameTickPacket, ballPrediction, fieldInfo) {
+    getOutput(gameTickPacket, ballPrediction) {
         throw new Error("Method 'getOutput()' must be implemented.");
     }
 

@@ -60,7 +60,8 @@ class BotManager {
                 switch (message[0]) {
                     case 'add':
                         if (message.length < 4) break;
-                        this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this);
+                        this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this.getFieldInfo());
+                        this.bots[Number(message[3])]._manager = this
                         break;
 
                     case 'remove':
