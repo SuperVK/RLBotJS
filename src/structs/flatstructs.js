@@ -1,4 +1,4 @@
-function Vec3(flat) {
+function Vector3(flat) {
     this.x = flat.x()
     this.y = flat.y() 
     this.z = flat.z()
@@ -11,17 +11,17 @@ function Rotator(flat) {
 }
 
 function Physics(flat) {
-    this.location = new Vec3(flat.location())
+    this.location = new Vector3(flat.location())
     this.rotation = flat.rotation() ? new Rotator(flat.rotation()) : null
-    this.velocity = new Vec3(flat.velocity())
-    this.angularVelocity = new Vec3(flat.angularVelocity())
+    this.velocity = new Vector3(flat.velocity())
+    this.angularVelocity = new Vector3(flat.angularVelocity())
 }
 
 function Touch(flat) {
     this.playerName = flat.playerName()
     this.gameSeconds = flat.gameSeconds()
-    this.location = new Vec3(flat.location())
-    this.normal = new Vec3(flat.normal())
+    this.location = new Vector3(flat.location())
+    this.normal = new Vector3(flat.normal())
     this.team = flat.team()
 }
 
@@ -119,14 +119,14 @@ function BallPrediction(flat) {
 }
 
 function BoostPad(flat) {
-    this.location = new Vec3(flat.location())
+    this.location = new Vector3(flat.location())
     this.isFullBoost = flat.isFullBoost()
 }
 
 function GoalInfo(flat) {
     this.teamNum = flat.teamNum()
-    this.location = new Vec3(flat.location())
-    this.direction = new Vec3(flat.direction())
+    this.location = new Vector3(flat.location())
+    this.direction = new Vector3(flat.direction())
 }
 
 function FieldInfo(flat) {
@@ -141,7 +141,7 @@ function FieldInfo(flat) {
 }
 
 module.exports = {
-    Vec3: Vec3,
+    Vector3: Vector3,
     Rotator: Rotator,
     Physics: Physics,
     Touch: Touch,
