@@ -5,6 +5,7 @@ const path = require('path')
 const fs = require('fs')
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./structs/flatstructs')
+const { GameState } = require('./structs/GameState')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
@@ -32,6 +33,7 @@ class BotManager {
             'GetBallPrediction': [this.ByteBuffer, []],
             'UpdateFieldInfoFlatbuffer': [this.ByteBuffer, []],
             'SendQuickChat': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
+            'SetGameState': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
         });
 
         // this is a dll specific to windows
@@ -136,6 +138,16 @@ class BotManager {
         let buffer = Buffer.from(builder.asUint8Array())
 
         this.interface.SendQuickChat(ref.address(buffer), buffer.length)
+    }
+
+    setGameState(gameState) {
+        let builder = new flatbuffers.Builder(0);
+        let gameStateOffset = gameState.convertToFlat(builder)
+        builder.finish(gameStateOffset)
+
+        let buffer = Buffer.from(builder.asUint8Array())
+
+        this.interface.SetGameState(ref.address(buffer), buffer.length)
     }
 
     updateBots() {

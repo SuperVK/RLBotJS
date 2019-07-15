@@ -1,8 +1,7 @@
-const Manager = require('./src/BotManager')
-
 module.exports = {
     BaseAgent: require('./src/baseAgent'),
     SimpleController: require('./src/structs/SimpleController'),
-    Manager: Manager,
-    quickChats: require('./src/structs/quickchats')
+    Manager: require('./src/BotManager'),
+    quickChats: require('./src/structs/quickchats'),
+    GameStateStructs: require('./src/structs/GameState')
 }

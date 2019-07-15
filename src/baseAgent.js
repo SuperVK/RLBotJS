@@ -18,6 +18,11 @@ class BaseAgent {
     sendQuickChat(QuickChatSelection, teamOnly) {
         this._manager.sendQuickChat(QuickChatSelection, this.index, teamOnly)
     }
+
+    //shouldn't be overwritten
+    setGameState(gameState) {
+        this._manager.setGameState(gameState)
+    }
     
 }
 

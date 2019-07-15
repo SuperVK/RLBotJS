@@ -1,6 +1,6 @@
 const path = require('path')
 const flatbuffers = require('flatbuffers').flatbuffers;
-const { RotatorPartial, Vector3Partial, DesiredPhysics, DesiredBallState, DesiredCarState, DesiredBoostState, DesiredGameInfoState, DesiredGameState } = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot.flat;
+const { RotatorPartial, Vector3Partial, DesiredPhysics, DesiredBallState, DesiredCarState, DesiredBoostState, DesiredGameInfoState, DesiredGameState, Float } = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
 
 class Rotator {
     /**
@@ -17,9 +17,9 @@ class Rotator {
     convertToFlat(builder) {
         if(this.pitch == null && this.yaw == null && this.roll == null) return null
         RotatorPartial.startRotatorPartial(builder)
-        if(this.pitch != null) RotatorPartial.addPitch(builder, this.pitch)
-        if(this.yaw != null) RotatorPartial.addYaw(builder, this.yaw)
-        if(this.roll != null) RotatorPartial.addRoll(builder, this.roll)
+        if(this.pitch != null) RotatorPartial.addPitch(builder, Float.createFloat(builder, this.pitch))
+        if(this.yaw != null) RotatorPartial.addYaw(builder, Float.createFloat(builder, this.yaw))
+        if(this.roll != null) RotatorPartial.addRoll(builder, Float.createFloat(builder, this.roll))
         return RotatorPartial.endRotatorPartial(builder)
     }
 }
@@ -39,9 +39,9 @@ class Vector3 {
     convertToFlat(builder) {
         if(this.x == null && this.y == null && this.z == null) return null
         Vector3Partial.startVector3Partial(builder)
-        if(this.x != null) Vector3Partial.addX(builder, this.x)
-        if(this.y != null) Vector3Partial.addY(builder, this.y)
-        if(this.z != null) Vector3Partial.addZ(builder, this.z)
+        if(this.x != null) Vector3Partial.addX(builder, Float.createFloat(builder, this.x))
+        if(this.y != null) Vector3Partial.addY(builder, Float.createFloat(builder, this.y))
+        if(this.z != null) Vector3Partial.addZ(builder, Float.createFloat(builder, this.z))
         return Vector3Partial.endVector3Partial(builder)
     }   
 }
@@ -115,7 +115,7 @@ class CarState {
         if(this.boostAmount != null) DesiredBallState.addBoostAmount(builder, this.boostAmount)
         if(this.jumped != null) DesiredBallState.addJumped(builder, this.jumped)
         if(this.doubleJumped != null) DesiredBallState.addDoubleJumped(builder, this.doubleJumped)
-        DesiredCarState.endDesiredCarState(builder)
+        return DesiredCarState.endDesiredCarState(builder)
     }
 }
 
@@ -168,27 +168,39 @@ class GameState {
     }
     convertToFlat(builder) {
         if(builder == null) builder = new flatbuffers.Builder(0)
-
-        let ballStateFlat = this.ballState ? this.ballState.convertToFlat() : null
-        let carStatesFlat = this.carStates ? [] : null
-        let boostStatesFlat = this.boostStatesFlat ? [] : null
-        let gameInfoStateFlat = this.gameInfoState ? this.gameInfoState.convertToFlat() : null
+        let ballStateFlat = this.ballState ? this.ballState.convertToFlat(builder) : null
+        let carStates = this.carStates ? [] : null
+        if(carStates != null) {
+            for(let carState of this.carStates) {
+                carStates.push(carState ? carState.convertToFlat(builder) : null)
+            }
+        }
+        let carStatesFlat = carStates ? DesiredGameState.createCarStatesVector(builder, carStates): null
+        let boostStates = this.boostStates ? [] : null
+        if(boostStates != null) {
+            for(let boostState of this.boostStates) {
+                boostStates.push(boostState ? boostState.convertToFlat(builder) : null)
+            }
+        }
+        let boostStatesFlat = boostStates ? DesiredGameState.createBoostStatesVector(builder, boostStates) : null
+        let gameInfoStateFlat = this.gameInfoState ? this.gameInfoState.convertToFlat(builder) : null
 
         DesiredGameState.startDesiredGameState(builder)
         if(ballStateFlat != null) DesiredGameState.addBallState(builder, ballStateFlat)
-        if(carStatesFlat != null) {
-            for(let carState of carStates) {
-                carStatesFlat.push(carState ? carState.convertToFlat() : null)
-            }
-            DesiredGameState.addCarStates(builder, carStatesFlat)
-        }
-        if(boostStatesFlat != null) {
-            for(let boostState of this.boostStates) {
-                boostStatesFlat.push(boostState ? boostState.convertToFlat() : null)
-            }
-            DesiredGameState.addBoostStates(builder, boostStatesFlat)
-        }
+        if(carStatesFlat != null) DesiredGameState.addCarStates(builder, carStatesFlat)
+        if(boostStatesFlat != null) DesiredGameState.addBoostStates(builder, boostStatesFlat)
         if(gameInfoStateFlat != null) DesiredGameState.addGameInfoState(builder, gameInfoStateFlat)
-        
+        return DesiredGameState.endDesiredGameState(builder)
     }
+}
+
+module.exports = {
+    Vector3: Vector3,
+    Rotator: Rotator,
+    Physics: Physics,
+    BallState: BallState,
+    BoostState: BoostState,
+    GameInfoState: GameInfoState,
+    CarState: CarState,
+    GameState: GameState
 }
