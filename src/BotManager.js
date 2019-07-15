@@ -3,9 +3,10 @@ var ffi = require('ffi');
 var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
+const RenderingManager = require('./utils/renderingManager')
 
-const { GameTickPacket, BallPrediction, FieldInfo } = require('./structs/flatstructs')
-const { GameState } = require('./structs/GameState')
+const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
+const { GameState } = require('./utils/GameState')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');

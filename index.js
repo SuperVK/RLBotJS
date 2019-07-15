@@ -1,7 +1,7 @@
 module.exports = {
     BaseAgent: require('./src/baseAgent'),
-    SimpleController: require('./src/structs/SimpleController'),
+    SimpleController: require('./src/utils/SimpleController'),
     Manager: require('./src/BotManager'),
-    quickChats: require('./src/structs/quickchats'),
-    GameStateStructs: require('./src/structs/GameState')
+    quickChats: require('./src/utils/quickchats'),
+    GameStateUtil: require('./src/utils/GameState')
 }
