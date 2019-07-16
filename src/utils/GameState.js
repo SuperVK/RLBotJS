@@ -1,6 +1,43 @@
 const path = require('path')
 const flatbuffers = require('flatbuffers').flatbuffers;
-const { RotatorPartial, Vector3Partial, DesiredPhysics, DesiredBallState, DesiredCarState, DesiredBoostState, DesiredGameInfoState, DesiredGameState, Float } = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
+const flat = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
+const { 
+    RotatorPartial, 
+    DesiredPhysics, 
+    DesiredBallState, 
+    DesiredCarState, 
+    DesiredBoostState, 
+    DesiredGameInfoState, 
+    DesiredGameState, 
+    Float,
+    Vector3Partial
+} = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
+
+class Vector3 {
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} z 
+     */
+    constructor(x, y, z) {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
+    convertToFlat(builder) {
+        if(this.x == null && this.y == null && this.z == null) return null
+        return flat.Vector3.createVector3(builder, this.x, this.y, this.z)
+    } 
+    convertToFlatPartial(builder) {
+        if(this.x == null && this.y == null && this.z == null) return null
+        Vector3Partial.startVector3Partial(builder)
+        if(this.x != null) Vector3Partial.addX(builder, Float.createFloat(builder, this.x))
+        if(this.y != null) Vector3Partial.addY(builder, Float.createFloat(builder, this.y))
+        if(this.z != null) Vector3Partial.addZ(builder, Float.createFloat(builder, this.z))
+        return Vector3Partial.endVector3Partial(builder)
+    }    
+}
 
 class Rotator {
     /**
@@ -24,28 +61,6 @@ class Rotator {
     }
 }
 
-class Vector3 {
-    /**
-     * 
-     * @param {Number} x 
-     * @param {Number} y 
-     * @param {Number} z 
-     */
-    constructor(x, y, z) {
-        this.x = x
-        this.y = y
-        this.z = z
-    }
-    convertToFlat(builder) {
-        if(this.x == null && this.y == null && this.z == null) return null
-        Vector3Partial.startVector3Partial(builder)
-        if(this.x != null) Vector3Partial.addX(builder, Float.createFloat(builder, this.x))
-        if(this.y != null) Vector3Partial.addY(builder, Float.createFloat(builder, this.y))
-        if(this.z != null) Vector3Partial.addZ(builder, Float.createFloat(builder, this.z))
-        return Vector3Partial.endVector3Partial(builder)
-    }   
-}
-
 class Physics {
     /**
      * 
@@ -61,10 +76,10 @@ class Physics {
         this.angularVelocity = angularVelocity
     }
     convertToFlat(builder) {
-        let locationFlat = this.location ? this.location.convertToFlat(builder) : null
+        let locationFlat = this.location ? this.location.convertToFlatPartial(builder) : null
         let rotationFlat = this.rotation ? this.rotation.convertToFlat(builder) : null
-        let velocityFlat = this.velocity ? this.velocity.convertToFlat(builder) : null
-        let angularVelocityFlat = this.angularVelocity ? this.angularVelocity.convertToFlat(builder) : null
+        let velocityFlat = this.velocity ? this.velocity.convertToFlatPartial(builder) : null
+        let angularVelocityFlat = this.angularVelocity ? this.angularVelocity.convertToFlatPartial(builder) : null
         if(locationFlat == null && rotationFlat == null && velocityFlat == null && angularVelocity == null) return null
         DesiredPhysics.startDesiredPhysics(builder)
         if(locationFlat != null) DesiredPhysics.addLocation(builder, locationFlat)

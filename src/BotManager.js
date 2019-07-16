@@ -3,7 +3,7 @@ var ffi = require('ffi');
 var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
-const RenderingManager = require('./utils/renderingManager')
+const RenderManager = require('./utils/RenderManager')
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
 const { GameState } = require('./utils/GameState')
@@ -35,6 +35,7 @@ class BotManager {
             'UpdateFieldInfoFlatbuffer': [this.ByteBuffer, []],
             'SendQuickChat': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
             'SetGameState': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
+            'RenderGroup': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
         });
 
         // this is a dll specific to windows
@@ -65,6 +66,7 @@ class BotManager {
                         if (message.length < 4) break;
                         this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this.getFieldInfo());
                         this.bots[Number(message[3])]._manager = this
+                        this.bots[Number(message[3])].renderer = new RenderManager(this, Number(message[3]))
                         break;
 
                     case 'remove':

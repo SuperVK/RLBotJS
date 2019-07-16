@@ -1,3 +1,13 @@
+const RenderManager = require('./utils/RenderManager')
+
+/**
+ * 
+ * @prop {String} name
+ * @prop {Number} team
+ * @prop {Number} index
+ * @prop {Object} fieldInfo
+ * @prop {RenderManager} renderer 
+ */
 class BaseAgent {
     constructor(name, team, index, fieldInfo) {
         this.name = name;
@@ -5,7 +15,7 @@ class BaseAgent {
         this.index = index;
         this.fieldInfo = fieldInfo
         this._manager = null; //set by the manager
-        //console.log('Initializing bot... name:' + this.name + ' team:' + this.team + ' id:' + this.index);
+        this.renderer = null //set by the manager
 
     }
 
