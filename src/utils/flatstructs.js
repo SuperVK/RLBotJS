@@ -23,6 +23,7 @@ function Touch(flat) {
     this.location = new Vector3(flat.location())
     this.normal = new Vector3(flat.normal())
     this.team = flat.team()
+    this.playerIndex = flat.playerIndex()
 }
 
 function DropShotBallInfo(flat) {
