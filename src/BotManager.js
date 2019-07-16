@@ -111,6 +111,7 @@ class BotManager {
         controller.addBoost(builder, botInput.boost);
         controller.addJump(builder, botInput.jump);
         controller.addHandbrake(builder, botInput.handbrake);
+        controller.addUseItem(builder, botInput.useItem)
         var controllerOffset = controller.endControllerState(builder);
 
         playerinput.startPlayerInput(builder);

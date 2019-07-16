@@ -7,6 +7,7 @@ function SimpleController() {
     this.boost = false
     this.jump = false
     this.handbrake = false
+    this.useItem = false
 }
 
 module.exports = SimpleController

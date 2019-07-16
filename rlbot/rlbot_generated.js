@@ -351,13 +351,14 @@ rlbot.flat.BoostOption = {
  * @enum
  */
 rlbot.flat.RumbleOption = {
-  None: 0,
+  No_Rumble: 0,
   Default: 1,
   Slow: 2,
   Civilized: 3,
   Destruction_Derby: 4,
   Spring_Loaded: 5,
-  Spikes_Only: 6
+  Spikes_Only: 6,
+  Spike_Rush: 7
 };
 
 /**
@@ -399,6 +400,27 @@ rlbot.flat.RespawnTimeOption = {
   Two_Seconds: 1,
   One_Seconds: 2,
   Disable_Goal_Reset: 3
+};
+
+/**
+ * @enum
+ */
+rlbot.flat.ExistingMatchBehavior = {
+  /**
+   * Restart the match if any match settings differ. This is the default because old RLBot always worked this way.
+   */
+  Restart_If_Different: 0,
+
+  /**
+   * Always restart the match, even if config is identical
+   */
+  Restart: 1,
+
+  /**
+   * Never restart an existing match, just try to remove or spawn cars to match the configuration.
+   * If we are not in the middle of a match, a match will be started. Handy for LAN matches.
+   */
+  Continue_And_Spawn: 2
 };
 
 /**
@@ -517,10 +539,20 @@ rlbot.flat.ControllerState.prototype.handbrake = function() {
 };
 
 /**
+ * true if you want to press the 'use item' button, used in rumble etc.
+ *
+ * @returns {boolean}
+ */
+rlbot.flat.ControllerState.prototype.useItem = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 rlbot.flat.ControllerState.startControllerState = function(builder) {
-  builder.startObject(8);
+  builder.startObject(9);
 };
 
 /**
@@ -585,6 +617,14 @@ rlbot.flat.ControllerState.addBoost = function(builder, boost) {
  */
 rlbot.flat.ControllerState.addHandbrake = function(builder, handbrake) {
   builder.addFieldInt8(7, +handbrake, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} useItem
+ */
+rlbot.flat.ControllerState.addUseItem = function(builder, useItem) {
+  builder.addFieldInt8(8, +useItem, +false);
 };
 
 /**
@@ -970,10 +1010,20 @@ rlbot.flat.Touch.prototype.team = function() {
 };
 
 /**
+ * The index of the player involved with the touch.
+ *
+ * @returns {number}
+ */
+rlbot.flat.Touch.prototype.playerIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 rlbot.flat.Touch.startTouch = function(builder) {
-  builder.startObject(5);
+  builder.startObject(6);
 };
 
 /**
@@ -1014,6 +1064,14 @@ rlbot.flat.Touch.addNormal = function(builder, normalOffset) {
  */
 rlbot.flat.Touch.addTeam = function(builder, team) {
   builder.addFieldInt32(4, team, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} playerIndex
+ */
+rlbot.flat.Touch.addPlayerIndex = function(builder, playerIndex) {
+  builder.addFieldInt32(5, playerIndex, 0);
 };
 
 /**
@@ -4626,10 +4684,26 @@ rlbot.flat.QuickChat.prototype.teamOnly = function() {
 };
 
 /**
+ * @returns {number}
+ */
+rlbot.flat.QuickChat.prototype.messageIndex = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+rlbot.flat.QuickChat.prototype.timeStamp = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 rlbot.flat.QuickChat.startQuickChat = function(builder) {
-  builder.startObject(3);
+  builder.startObject(5);
 };
 
 /**
@@ -4654,6 +4728,22 @@ rlbot.flat.QuickChat.addPlayerIndex = function(builder, playerIndex) {
  */
 rlbot.flat.QuickChat.addTeamOnly = function(builder, teamOnly) {
   builder.addFieldInt8(2, +teamOnly, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} messageIndex
+ */
+rlbot.flat.QuickChat.addMessageIndex = function(builder, messageIndex) {
+  builder.addFieldInt32(3, messageIndex, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} timeStamp
+ */
+rlbot.flat.QuickChat.addTimeStamp = function(builder, timeStamp) {
+  builder.addFieldFloat32(4, timeStamp, 0.0);
 };
 
 /**
@@ -6187,7 +6277,7 @@ rlbot.flat.MutatorSettings.prototype.boostOption = function() {
  */
 rlbot.flat.MutatorSettings.prototype.rumbleOption = function() {
   var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? /** @type {rlbot.flat.RumbleOption} */ (this.bb.readInt8(this.bb_pos + offset)) : rlbot.flat.RumbleOption.None;
+  return offset ? /** @type {rlbot.flat.RumbleOption} */ (this.bb.readInt8(this.bb_pos + offset)) : rlbot.flat.RumbleOption.No_Rumble;
 };
 
 /**
@@ -6322,7 +6412,7 @@ rlbot.flat.MutatorSettings.addBoostOption = function(builder, boostOption) {
  * @param {rlbot.flat.RumbleOption} rumbleOption
  */
 rlbot.flat.MutatorSettings.addRumbleOption = function(builder, rumbleOption) {
-  builder.addFieldInt8(11, rumbleOption, rlbot.flat.RumbleOption.None);
+  builder.addFieldInt8(11, rumbleOption, rlbot.flat.RumbleOption.No_Rumble);
 };
 
 /**
@@ -6461,10 +6551,18 @@ rlbot.flat.MatchSettings.prototype.mutatorSettings = function(obj) {
 };
 
 /**
+ * @returns {rlbot.flat.ExistingMatchBehavior}
+ */
+rlbot.flat.MatchSettings.prototype.existingMatchBehavior = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? /** @type {rlbot.flat.ExistingMatchBehavior} */ (this.bb.readInt8(this.bb_pos + offset)) : rlbot.flat.ExistingMatchBehavior.Restart_If_Different;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 rlbot.flat.MatchSettings.startMatchSettings = function(builder) {
-  builder.startObject(6);
+  builder.startObject(7);
 };
 
 /**
@@ -6538,9 +6636,115 @@ rlbot.flat.MatchSettings.addMutatorSettings = function(builder, mutatorSettingsO
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {rlbot.flat.ExistingMatchBehavior} existingMatchBehavior
+ */
+rlbot.flat.MatchSettings.addExistingMatchBehavior = function(builder, existingMatchBehavior) {
+  builder.addFieldInt8(6, existingMatchBehavior, rlbot.flat.ExistingMatchBehavior.Restart_If_Different);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 rlbot.flat.MatchSettings.endMatchSettings = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+rlbot.flat.QuickChatMessages = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {rlbot.flat.QuickChatMessages}
+ */
+rlbot.flat.QuickChatMessages.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {rlbot.flat.QuickChatMessages=} obj
+ * @returns {rlbot.flat.QuickChatMessages}
+ */
+rlbot.flat.QuickChatMessages.getRootAsQuickChatMessages = function(bb, obj) {
+  return (obj || new rlbot.flat.QuickChatMessages).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @param {rlbot.flat.QuickChat=} obj
+ * @returns {rlbot.flat.QuickChat}
+ */
+rlbot.flat.QuickChatMessages.prototype.messages = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new rlbot.flat.QuickChat).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+rlbot.flat.QuickChatMessages.prototype.messagesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+rlbot.flat.QuickChatMessages.startQuickChatMessages = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} messagesOffset
+ */
+rlbot.flat.QuickChatMessages.addMessages = function(builder, messagesOffset) {
+  builder.addFieldOffset(0, messagesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+rlbot.flat.QuickChatMessages.createMessagesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+rlbot.flat.QuickChatMessages.startMessagesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+rlbot.flat.QuickChatMessages.endQuickChatMessages = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
