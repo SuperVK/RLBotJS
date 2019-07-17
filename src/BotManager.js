@@ -64,6 +64,7 @@ class BotManager {
                 switch (message[0]) {
                     case 'add':
                         if (message.length < 4) break;
+                        if(this.bots[Number(message[3])] != undefined) return
                         this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this.getFieldInfo());
                         this.bots[Number(message[3])]._manager = this
                         this.bots[Number(message[3])].renderer = new RenderManager(this, Number(message[3]))
