@@ -4,6 +4,7 @@ var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
 const RenderManager = require('./utils/RenderManager')
+const portFromFile = Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
 const { GameState } = require('./utils/GameState')
@@ -16,7 +17,9 @@ var rlbot = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot;
 class BotManager {
     constructor(botClass, port, ip = '127.0.0.1') {
         this.botClass = botClass
-        this.port = port ? port : Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
+        if(isNaN(process.argv[2]) && process.argv[2] != undefined) throw new Error('Port must be a number (second argument)')
+        if(port != undefined) this.port = port
+        else this.port = process.argv[2] ? process.argv[2] : portFromFile
         this.ip = ip;
         this.bots = [];
         this.ByteBuffer = Struct({
