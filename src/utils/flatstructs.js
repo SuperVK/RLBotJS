@@ -96,7 +96,7 @@ function GameTickPacket(flat) {
         this.boostPadStates.push(new BoostPadState(flat.boostPadStates(b)))
     }
     this.ball = flat.ball() ? new BallInfo(flat.ball()) : null
-    this.gameInfo = new GameInfo(flat.gameInfo(flat.gameInfo()))
+    this.gameInfo = flat.gameInfo() ? new GameInfo(flat.gameInfo(flat.gameInfo())) : null
     this.tileInformation = []
     for(let t = 0; t < flat.tileInformationLength(); t++) {
         this.tileInformation.push(new DropshotTile(flat.tileInformation(t)))

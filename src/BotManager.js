@@ -29,7 +29,19 @@ class BotManager {
             'size': ref.types.uint32
         });
 
-        this.interface = ffi.Library(path.join(__dirname, '../rlbot/RLBot_Core_Interface'), {
+        //gets the path of the python lib from the python server
+        this.interfacePath = null
+
+        // this is a dll specific to windows
+        this.windows = ffi.Library('msvcrt', {
+            'memcpy': [ref.types.void, [ref.types.uint64, ref.types.uint64, ref.types.uint32]] // even more 64 bit pointers
+        });
+
+        console.log("Waiting for dll to initialize...");
+    }
+    
+    loadInterface() {
+        this.interface = ffi.Library(path.join(this.interfacePath, '/RLBot_Core_Interface'), {
             'IsInitialized': [ref.types.bool, []],
             'UpdateLiveDataPacketFlatbuffer': [this.ByteBuffer, []],
             'UpdatePlayerInputFlatbuffer': [ref.types.int32, [ref.types.uint64, ref.types.uint32]], // also 64 bit pointer
@@ -41,18 +53,20 @@ class BotManager {
             'RenderGroup': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
         });
 
-        // this is a dll specific to windows
-        this.windows = ffi.Library('msvcrt', {
-            'memcpy': [ref.types.void, [ref.types.uint64, ref.types.uint64, ref.types.uint32]] // even more 64 bit pointers
-        });
+        
 
-        console.log("Waiting for dll to initialize...");
+        this.waitUntilInitialized().then(() => {
+            console.log("Dll initialized!");
+        })
+    }
+    //so the while loop is non blocking
+    async waitUntilInitialized() {
+        return new Promise((resolve, reject) => {
+            while (!this.interface.IsInitialized()) {
 
-        while (!this.interface.IsInitialized()) {
-
-        }
-
-        console.log("Dll initialized!");
+            }
+            resolve()
+        })
     }
     /**
      * starts the botManager...
@@ -64,6 +78,10 @@ class BotManager {
             socket.setEncoding('ascii');
             socket.on('data', (data) => {
                 var message = data.toString().split('\n');
+                if(message[4] != null && this.interfacePath == null) {
+                    this.interfacePath = message[4]
+                    this.loadInterface()
+                }
                 switch (message[0]) {
                     case 'add':
                         if (message.length < 4) break;
@@ -159,6 +177,7 @@ class BotManager {
     }
 
     updateBots() {
+        if(this.interface == null) return
         let gameTickPacket = this.getGameTickPacket()
         let ballPrediction = this.getBallPrediction()
         let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
