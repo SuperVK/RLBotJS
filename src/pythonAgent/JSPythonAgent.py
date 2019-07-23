@@ -9,7 +9,7 @@ from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.structures import game_interface
 
 
-class BaseDotNetAgent(BaseIndependentAgent):
+class BaseJavaScriptAgent(BaseIndependentAgent):
 
     def __init__(self, name, team, index):
         super().__init__(name, team, index)
