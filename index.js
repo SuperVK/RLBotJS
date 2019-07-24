@@ -4,5 +4,5 @@ module.exports = {
     Manager: require('./src/BotManager'),
     quickChats: require('./src/utils/quickchats'),
     GameStateUtil: require('./src/utils/GameState'),
-    SuperDuperSecretStructuresThatNoOneIsAllowedToUse: require('./src/utils/flatstructs')
+    ___flatStructs___: require('./src/utils/flatstructs')
 }
