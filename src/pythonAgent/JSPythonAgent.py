@@ -17,14 +17,17 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
         self.port = self.read_port_from_file()
         self.is_retired = False
 
+        self.tried_auto_run = False
+        try:
+            subprocess.Popen([os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), 'auto-run.bat'))])
+        except Exception as e:
+            self.logger.error(f"A JavaScript bot with the name of {self.name} will need to be started manually. Error when running 'auto-run.bat': {str(e)}.")
+        self.tried_auto_run = True
+
     def run_independently(self, terminate_request_event):
 
         while not terminate_request_event.is_set():
             message = f"add\n{self.name}\n{self.team}\n{self.index}\n{game_interface.get_dll_directory()}"
-            try:
-                subprocess.Popen([os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), 'auto-run.bat'))])
-            except Exception as e:
-                self.logger.error(f"A JavaScript bot with the name of {self.name} will need to be started manually. Error when running 'auto-run.bat': {str(e)}.")
 
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,7 +35,8 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
                 s.send(bytes(message, "ASCII"))
                 s.close()
             except ConnectionRefusedError:
-                self.logger.warn("Could not connect to server!")
+                if self.tried_auto_run:
+                    self.logger.warn("Could not connect to server!")
 
             time.sleep(1)
         else:
