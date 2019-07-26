@@ -17,12 +17,10 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
         self.port = self.read_port_from_file()
         self.is_retired = False
 
-        self.tried_auto_run = False
         try:
             subprocess.Popen([os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), 'auto-run.bat'))])
         except Exception as e:
             self.logger.error(f"A JavaScript bot with the name of {self.name} will need to be started manually. Error when running 'auto-run.bat': {str(e)}.")
-        self.tried_auto_run = True
 
     def run_independently(self, terminate_request_event):
 
@@ -35,8 +33,7 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
                 s.send(bytes(message, "ASCII"))
                 s.close()
             except ConnectionRefusedError:
-                if self.tried_auto_run:
-                    self.logger.warn("Could not connect to server!")
+                self.logger.warn("Could not connect to server!")
 
             time.sleep(1)
         else:
