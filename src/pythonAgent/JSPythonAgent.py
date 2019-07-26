@@ -1,6 +1,7 @@
 import os
 import socket
 import time
+import subprocess
 
 import psutil
 
@@ -9,7 +10,7 @@ from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.structures import game_interface
 
 
-class BaseDotNetAgent(BaseIndependentAgent):
+class BaseJavaScriptAgent(BaseIndependentAgent):
 
     def __init__(self, name, team, index):
         super().__init__(name, team, index)
@@ -20,6 +21,11 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
         while not terminate_request_event.is_set():
             message = f"add\n{self.name}\n{self.team}\n{self.index}\n{game_interface.get_dll_directory()}"
+            try:
+                subprocess.Popen([os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), 'auto-run.bat'))])
+            except Exception as e:
+                self.logger.error(f"A JavaScript bot with the name of {self.name} will need to be started manually. Error when running 'auto-run.bat': {str(e)}.")
+
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(("127.0.0.1", self.port))
