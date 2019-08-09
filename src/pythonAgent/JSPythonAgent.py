@@ -37,7 +37,7 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
                 s.send(bytes(message, "ASCII"))
                 s.close()
             except ConnectionRefusedError:
-                self.logger.warn("Could not connect to server!")
+                self.logger.warn("Could not connect to server! Searching on port " + str(self.port))
 
             time.sleep(1)
         else:
