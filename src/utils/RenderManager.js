@@ -4,7 +4,7 @@ const path = require('path')
 const ref = require('ref')
 const { RenderMessage, RenderType, RenderGroup } = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
 const flat = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat
-const { Vector3 } = require('./GameState')
+const { Vector3 } = require('./gameState')
 const defaultGroupId = 'default'
 const maxInt = 1337
 

@@ -3,13 +3,13 @@ var ffi = require('ffi');
 var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
-const RenderManager = require('./utils/RenderManager')
+const RenderManager = require('./utils/renderManager')
 const portFromFile = Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
-const { GameState } = require('./utils/GameState')
+const { GameState } = require('./utils/gameState')
 
-const SimpleController = require('./utils/SimpleController')
+const SimpleController = require('./utils/simpleController')
 
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
