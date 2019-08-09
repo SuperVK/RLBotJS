@@ -9,6 +9,8 @@ const portFromFile = Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/p
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
 const { GameState } = require('./utils/GameState')
 
+const SimpleController = require('./utils/SimpleController')
+
 var flatbuffers = require('flatbuffers').flatbuffers;
 const net = require('net');
 
@@ -39,7 +41,7 @@ class BotManager {
 
         console.log("Waiting for dll to initialize...");
     }
-    
+
     loadInterface() {
         this.interface = ffi.Library(path.join(this.interfacePath, '/RLBot_Core_Interface'), {
             'IsInitialized': [ref.types.bool, []],
@@ -53,7 +55,7 @@ class BotManager {
             'RenderGroup': [ref.types.int32, [ref.types.uint64, ref.types.uint32]],
         });
 
-        
+
 
         this.waitUntilInitialized().then(() => {
             console.log("Dll initialized!");
@@ -184,7 +186,13 @@ class BotManager {
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
-                var _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                var _input = SimpleController()
+                try {
+                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                } catch (e) {
+                    console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}: ${e.toString()}`);
+                    _input = SimpleController()
+                }
                 this.sendInput(i, _input);
             }
         }
