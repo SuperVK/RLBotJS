@@ -187,12 +187,12 @@ class BotManager {
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
                 var _input = SimpleController()
-                //try {
-                _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
-                /*} catch (e) {
+                try {
+                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                } catch (e) {
                     console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}: ${e.toString()}`);
                     _input = SimpleController()
-                }*/
+                }
                 this.sendInput(i, _input);
             }
         }
