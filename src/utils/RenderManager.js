@@ -10,11 +10,11 @@ const maxInt = 1337
 
 class Color {
     /**
-     * 
-     * @param {Number} alpha 
-     * @param {Number} red 
-     * @param {Number} green 
-     * @param {Number} blue 
+     *
+     * @param {Number} alpha
+     * @param {Number} red
+     * @param {Number} green
+     * @param {Number} blue
      */
     constructor(alpha, red, green, blue) {
         this.alpha = alpha
@@ -42,7 +42,7 @@ class RenderManager {
         this.groupID = ''
     }
     /**
-     * 
+     *
      * @param {String} [groupID]
      */
     beginRendering(groupID) {
@@ -56,7 +56,7 @@ class RenderManager {
         const hash = crypto.createHash('sha256')
         hash.update(this.groupID + this.index)
         let groupIDHashed = parseInt(hash.digest('hex'), 16)%maxInt
-        
+
         let messages = RenderGroup.createRenderMessagesVector(this.builder, this.renderList)
 
         RenderGroup.startRenderGroup(this.builder)
@@ -72,13 +72,13 @@ class RenderManager {
         this.manager.interface.RenderGroup(ref.address(buffer), buffer.length)
     }
     /**
-     * 
+     *
      * @param {Number} x
      * @param {Number} y
      * @param {Number} scaleX
-     * @param {Number} scaleY 
-     * @param {String} text 
-     * @param {Color} color 
+     * @param {Number} scaleY
+     * @param {String} text
+     * @param {Color} color
      */
     drawString2D(x, y, scaleX, scaleY, text, color) {
         let textFlat = this.builder.createString(text)
@@ -95,12 +95,12 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
-     * 
-     * @param {Vector3} vector 
-     * @param {Number} scaleX 
-     * @param {Number} scaleY 
-     * @param {String} text 
-     * @param {Color} color 
+     *
+     * @param {Vector3} vector
+     * @param {Number} scaleX
+     * @param {Number} scaleY
+     * @param {String} text
+     * @param {Color} color
      */
     drawString3D(vector, scaleX, scaleY, text, color) {
         let textFlat = this.builder.createString(text)
@@ -117,11 +117,11 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
-     * 
+     *
      * @param {Number} x
      * @param {Number} y
-     * @param {Vector3} end 
-     * @param {Color} color 
+     * @param {Vector3} end
+     * @param {Color} color
      */
     drawLine2D_3D(x, y, end, color) {
         let colorFlat = color.convertToFlat(this.builder)
@@ -133,10 +133,10 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
-     * 
-     * @param {Vector3} start 
-     * @param {Vector3} end 
-     * @param {Color} color 
+     *
+     * @param {Vector3} start
+     * @param {Vector3} end
+     * @param {Color} color
      */
     drawLine3D(start, end, color) {
         let colorFlat = color.convertToFlat(this.builder)
@@ -148,13 +148,13 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
-     * 
-     * @param {Number} x 
-     * @param {Number} y 
-     * @param {Number} width 
-     * @param {Number} height 
-     * @param {Boolean} filled 
-     * @param {Color} color 
+     *
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Number} width
+     * @param {Number} height
+     * @param {Boolean} filled
+     * @param {Color} color
      */
     drawRect2D(x, y, width, height, filled, color) {
         let colorFlat = color.convertToFlat(this.builder)
@@ -168,12 +168,12 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
-     * 
-     * @param {Vector3} vector 
-     * @param {Number} width 
-     * @param {Number} height 
-     * @param {Boolean} filled 
-     * @param {Color} color 
+     *
+     * @param {Vector3} vector
+     * @param {Number} width
+     * @param {Number} height
+     * @param {Boolean} filled
+     * @param {Color} color
      * @param {Boolean} [centered]
      */
     drawRect3D(vector, width, height, filled, color, centered) {
@@ -188,7 +188,57 @@ class RenderManager {
         this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
 
-    
+    black() {
+        return new this.Color(255, 0, 0, 0);
+    }
+
+    white() {
+        return new this.Color(255, 255, 255, 255);
+    }
+
+    gray() {
+        return new this.Color(255, 128, 128, 128);
+    }
+
+    blue() {
+        return new this.Color(255, 0, 0, 255);
+    }
+
+    red() {
+        return new this.Color(255, 255, 0, 0);
+    }
+
+    green() {
+        return new this.Color(255, 0, 128, 0);
+    }
+
+    lime() {
+        return new this.Color(255, 0, 255, 0);
+    }
+
+    yellow() {
+        return new this.Color(255, 255, 255, 0);
+    }
+
+    orange() {
+        return new this.Color(255, 225, 128, 0);
+    }
+
+    cyan() {
+        return new this.Color(255, 0, 255, 255);
+    }
+
+    pink() {
+        return new this.Color(255, 255, 0, 255);
+    }
+
+    purple() {
+        return new this.Color(255, 128, 0, 128);
+    }
+
+    teal() {
+        return new this.Color(255, 0, 128, 128);
+    }
 }
 
 module.exports = RenderManager
