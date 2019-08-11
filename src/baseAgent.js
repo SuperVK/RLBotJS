@@ -1,12 +1,12 @@
 const RenderManager = require('./utils/renderManager')
 
 /**
- * 
+ *
  * @prop {String} name
  * @prop {Number} team
  * @prop {Number} index
  * @prop {Object} fieldInfo
- * @prop {RenderManager} renderer 
+ * @prop {RenderManager} renderer
  */
 class BaseAgent {
     constructor(name, team, index, fieldInfo) {
@@ -31,9 +31,26 @@ class BaseAgent {
 
     //shouldn't be overwritten
     setGameState(gameState) {
-        this._manager.setGameState(gameState)
+        this._manager.setGameState(gameState);
     }
-    
+
+    getFieldInfo() {
+        return this._manager.getFieldInfo();
+    }
+
+    getGameTickPacket() {
+        return this._manager.getGameTickPacket();
+    }
+
+    getBallPrediction() {
+        return this._manager.getBallPrediction();
+    }
+
+    // Just for util
+    getGameInfo() {
+        return this.getGameTickPacket().gameInfo;
+    }
+
 }
 
 module.exports = BaseAgent
