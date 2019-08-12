@@ -206,12 +206,8 @@ class BotManager {
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
                 var _input = new SimpleController()
-                if(this.debug) { // also maybe !this.debug
-                    //try {
-                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
-                    //} catch (e) {
-                        //process.exit() maybe
-                    //}
+                if(this.debug) {
+                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
                 } else {
                     try {
                         _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
