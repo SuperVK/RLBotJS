@@ -1,4 +1,4 @@
-const RenderManager = require('./utils/renderManager')
+const RenderManager = require('./utils/RenderManager')
 
 /**
  *
