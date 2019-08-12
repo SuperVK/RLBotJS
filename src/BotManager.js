@@ -17,12 +17,31 @@ const net = require('net');
 var rlbot = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot;
 
 class BotManager {
-    constructor(botClass, port, ip = '127.0.0.1') {
+    constructor(botClass, debug = false, port, ip = '127.0.0.1') {
         this.botClass = botClass
-        if(isNaN(process.argv[2]) && process.argv[2] != undefined) throw new Error('Port must be a number (second argument)')
-        if(port != undefined) this.port = port
-        else this.port = process.argv[2] ? process.argv[2] : portFromFile
+        this.port = port ? port : portFromFile
         this.ip = ip;
+        this.debug = debug
+        for(let i = 2; i < process.argv.length; i += 2) {
+            switch(process.argv[i]) {
+                case '-d':
+                case '--debug': {
+                    this.debug = (process.argv[i+1] == 'true')
+                    break;
+                }
+                case '-p':
+                case '--port': {
+                    this.port = (process.argv[i+1] == 'true')
+                    break;
+                }
+                case '-i':
+                case '--ip': {
+                    this.ip = (process.argv[i+1] == 'true')
+                    break;
+                }
+            }
+        }
+
         this.bots = [];
         this.ByteBuffer = Struct({
             // 64 bit pointer so needs to use the 64 bit interface dll and 64 bit node.exe, hacky but it works.
@@ -186,12 +205,16 @@ class BotManager {
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
-                var _input = SimpleController()
-                try {
+                var _input = new SimpleController()
+                if(this.debug) {
                     _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
-                } catch (e) {
-                    console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}: ${e.toString()}`);
-                    _input = SimpleController()
+                } else {
+                    try {
+                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                    } catch (e) {
+                        console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}:\n ${e.toString()}`);
+                        _input = new SimpleController()
+                    }
                 }
                 this.sendInput(i, _input);
             }
