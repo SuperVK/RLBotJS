@@ -1,4 +1,4 @@
-const RenderManager = require("./utils/RenderManager");
+const RenderManager = require('./utils/RenderManager')
 
 /**
  *
@@ -10,28 +10,28 @@ const RenderManager = require("./utils/RenderManager");
  */
 class BaseAgent {
     constructor(name, team, index, fieldInfo) {
-        this.name = name;
-        this.team = team;
-        this.index = index;
-        this.fieldInfo = fieldInfo;
-        this._manager = null; //set by the manager
-        this.renderer = null; //set by the manager
+        this.name = name
+        this.team = team
+        this.index = index
+        this.fieldInfo = fieldInfo
+        this._manager = null //set by the manager
+        this.renderer = null //set by the manager
     }
 
     //should be overwritten
     getOutput(gameTickPacket, ballPrediction) {
-        throw new Error("Method 'getOutput()' must be implemented.");
+        throw new Error("Method 'getOutput()' must be implemented.")
     }
 
     //shouldn't be overwritten
     sendQuickChat(QuickChatSelection, teamOnly) {
-        this._manager.sendQuickChat(QuickChatSelection, this.index, teamOnly);
+        this._manager.sendQuickChat(QuickChatSelection, this.index, teamOnly)
     }
 
     //shouldn't be overwritten
     setGameState(gameState) {
-        this._manager.setGameState(gameState);
+        this._manager.setGameState(gameState)
     }
 }
 
-module.exports = BaseAgent;
+module.exports = BaseAgent

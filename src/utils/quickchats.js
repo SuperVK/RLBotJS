@@ -90,6 +90,6 @@ const quickChats = {
         /// Are you <Insert Pro>Bot? *
         Compliments_Pro: 57,
     },
-};
+}
 
-module.exports = quickChats;
+module.exports = quickChats

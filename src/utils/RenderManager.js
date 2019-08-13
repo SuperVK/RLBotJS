@@ -1,15 +1,15 @@
-const crypto = require("crypto");
-const flatbuffers = require("flatbuffers").flatbuffers;
-const path = require("path");
-const ref = require("ref");
+const crypto = require('crypto')
+const flatbuffers = require('flatbuffers').flatbuffers
+const path = require('path')
+const ref = require('ref')
 const { RenderMessage, RenderType, RenderGroup } = require(path.join(
     __dirname,
-    "../../rlbot/rlbot_generated.js",
-)).rlbot.flat;
-const flat = require(path.join(__dirname, "../../rlbot/rlbot_generated.js")).rlbot.flat;
-const { Vector3 } = require("./GameState");
-const defaultGroupId = "default";
-const maxInt = 1337;
+    '../../rlbot/rlbot_generated.js',
+)).rlbot.flat
+const flat = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat
+const { Vector3 } = require('./GameState')
+const defaultGroupId = 'default'
+const maxInt = 1337
 
 class Color {
     /**
@@ -20,59 +20,59 @@ class Color {
      * @param {Number} blue
      */
     constructor(alpha, red, green, blue) {
-        this.alpha = alpha;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
+        this.alpha = alpha
+        this.red = red
+        this.green = green
+        this.blue = blue
     }
     convertToFlat(builder) {
-        flat.Color.startColor(builder);
-        flat.Color.addA(builder, this.alpha);
-        flat.Color.addR(builder, this.red);
-        flat.Color.addG(builder, this.green);
-        flat.Color.addB(builder, this.blue);
-        return flat.Color.endColor(builder);
+        flat.Color.startColor(builder)
+        flat.Color.addA(builder, this.alpha)
+        flat.Color.addR(builder, this.red)
+        flat.Color.addG(builder, this.green)
+        flat.Color.addB(builder, this.blue)
+        return flat.Color.endColor(builder)
     }
 }
 
 class RenderManager {
     constructor(botManager, index) {
-        this.manager = botManager;
-        this.builder = null;
-        this.index = index;
-        this.Color = Color;
-        this.renderList = [];
-        this.groupID = "";
+        this.manager = botManager
+        this.builder = null
+        this.index = index
+        this.Color = Color
+        this.renderList = []
+        this.groupID = ''
     }
     /**
      *
      * @param {String} [groupID]
      */
     beginRendering(groupID) {
-        this.builder = new flatbuffers.Builder(0);
-        this.renderList = [];
-        if (groupID) this.groupID = groupID;
+        this.builder = new flatbuffers.Builder(0)
+        this.renderList = []
+        if (groupID) this.groupID = groupID
     }
 
     endRendering() {
-        if (this.groupID == undefined) this.groupID = "default";
-        const hash = crypto.createHash("sha256");
-        hash.update(this.groupID + this.index);
-        let groupIDHashed = parseInt(hash.digest("hex"), 16) % maxInt;
+        if (this.groupID == undefined) this.groupID = 'default'
+        const hash = crypto.createHash('sha256')
+        hash.update(this.groupID + this.index)
+        let groupIDHashed = parseInt(hash.digest('hex'), 16) % maxInt
 
-        let messages = RenderGroup.createRenderMessagesVector(this.builder, this.renderList);
+        let messages = RenderGroup.createRenderMessagesVector(this.builder, this.renderList)
 
-        RenderGroup.startRenderGroup(this.builder);
-        RenderGroup.addId(this.builder, groupIDHashed);
-        RenderGroup.addRenderMessages(this.builder, messages);
+        RenderGroup.startRenderGroup(this.builder)
+        RenderGroup.addId(this.builder, groupIDHashed)
+        RenderGroup.addRenderMessages(this.builder, messages)
 
-        let result = RenderGroup.endRenderGroup(this.builder);
+        let result = RenderGroup.endRenderGroup(this.builder)
 
-        this.builder.finish(result);
+        this.builder.finish(result)
 
-        let buffer = Buffer.from(this.builder.asUint8Array());
+        let buffer = Buffer.from(this.builder.asUint8Array())
 
-        this.manager.interface.RenderGroup(ref.address(buffer), buffer.length);
+        this.manager.interface.RenderGroup(ref.address(buffer), buffer.length)
     }
     /**
      *
@@ -84,18 +84,18 @@ class RenderManager {
      * @param {Color} color
      */
     drawString2D(x, y, scaleX, scaleY, text, color) {
-        let textFlat = this.builder.createString(text);
-        let colorFlat = color.convertToFlat(this.builder);
+        let textFlat = this.builder.createString(text)
+        let colorFlat = color.convertToFlat(this.builder)
 
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, RenderType.DrawString2D);
-        RenderMessage.addColor(this.builder, colorFlat);
-        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, x, y));
-        RenderMessage.addScaleX(this.builder, scaleX);
-        RenderMessage.addScaleY(this.builder, scaleY);
-        RenderMessage.addText(this.builder, textFlat);
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, RenderType.DrawString2D)
+        RenderMessage.addColor(this.builder, colorFlat)
+        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, x, y))
+        RenderMessage.addScaleX(this.builder, scaleX)
+        RenderMessage.addScaleY(this.builder, scaleY)
+        RenderMessage.addText(this.builder, textFlat)
 
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
      *
@@ -106,18 +106,18 @@ class RenderManager {
      * @param {Color} color
      */
     drawString3D(vector, scaleX, scaleY, text, color) {
-        let textFlat = this.builder.createString(text);
-        let colorFlat = color.convertToFlat(this.builder);
+        let textFlat = this.builder.createString(text)
+        let colorFlat = color.convertToFlat(this.builder)
 
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, RenderType.DrawString3D);
-        RenderMessage.addColor(this.builder, colorFlat);
-        RenderMessage.addStart(this.builder, vector.convertToFlat(this.builder));
-        RenderMessage.addScaleX(this.builder, scaleX);
-        RenderMessage.addScaleY(this.builder, scaleY);
-        RenderMessage.addText(this.builder, textFlat);
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, RenderType.DrawString3D)
+        RenderMessage.addColor(this.builder, colorFlat)
+        RenderMessage.addStart(this.builder, vector.convertToFlat(this.builder))
+        RenderMessage.addScaleX(this.builder, scaleX)
+        RenderMessage.addScaleY(this.builder, scaleY)
+        RenderMessage.addText(this.builder, textFlat)
 
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
      *
@@ -127,13 +127,13 @@ class RenderManager {
      * @param {Color} color
      */
     drawLine2D_3D(x, y, end, color) {
-        let colorFlat = color.convertToFlat(this.builder);
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, RenderType.DrawLine2D_3D);
-        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, x, y));
-        RenderMessage.addEnd(this.builder, end.convertToFlat(this.builder));
-        RenderMessage.addColor(this.builder, colorFlat);
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        let colorFlat = color.convertToFlat(this.builder)
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, RenderType.DrawLine2D_3D)
+        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, x, y))
+        RenderMessage.addEnd(this.builder, end.convertToFlat(this.builder))
+        RenderMessage.addColor(this.builder, colorFlat)
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
      *
@@ -142,13 +142,13 @@ class RenderManager {
      * @param {Color} color
      */
     drawLine3D(start, end, color) {
-        let colorFlat = color.convertToFlat(this.builder);
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, RenderType.DrawLine3D);
-        RenderMessage.addStart(this.builder, start.convertToFlat(this.builder));
-        RenderMessage.addEnd(this.builder, end.convertToFlat(this.builder));
-        RenderMessage.addColor(this.builder, colorFlat);
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        let colorFlat = color.convertToFlat(this.builder)
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, RenderType.DrawLine3D)
+        RenderMessage.addStart(this.builder, start.convertToFlat(this.builder))
+        RenderMessage.addEnd(this.builder, end.convertToFlat(this.builder))
+        RenderMessage.addColor(this.builder, colorFlat)
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
      *
@@ -160,15 +160,15 @@ class RenderManager {
      * @param {Color} color
      */
     drawRect2D(x, y, width, height, filled, color) {
-        let colorFlat = color.convertToFlat(this.builder);
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, RenderType.DrawRect2D);
-        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, this.x, this.y));
-        RenderMessage.addScaleX(this.builder, width);
-        RenderMessage.addScaleY(this.builder, height);
-        RenderMessage.addIsFilled(this.builder, filled);
-        RenderMessage.addColor(this.builder, colorFlat);
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        let colorFlat = color.convertToFlat(this.builder)
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, RenderType.DrawRect2D)
+        RenderMessage.addStart(this.builder, flat.Vector3.createVector3(this.builder, this.x, this.y))
+        RenderMessage.addScaleX(this.builder, width)
+        RenderMessage.addScaleY(this.builder, height)
+        RenderMessage.addIsFilled(this.builder, filled)
+        RenderMessage.addColor(this.builder, colorFlat)
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
     /**
      *
@@ -180,68 +180,68 @@ class RenderManager {
      * @param {Boolean} [centered]
      */
     drawRect3D(vector, width, height, filled, color, centered) {
-        let colorFlat = color.convertToFlat(this.builder);
-        RenderMessage.startRenderMessage(this.builder);
-        RenderMessage.addRenderType(this.builder, centered ? RenderType.DrawCenteredRect3D : RenderType.DrawRect3D);
-        RenderMessage.addStart(this.builder, vector.convertToFlat(this.builder));
-        RenderMessage.addScaleX(this.builder, width);
-        RenderMessage.addScaleY(this.builder, height);
-        RenderMessage.addIsFilled(this.builder, filled);
-        RenderMessage.addColor(this.builder, colorFlat);
-        this.renderList.push(RenderMessage.endRenderMessage(this.builder));
+        let colorFlat = color.convertToFlat(this.builder)
+        RenderMessage.startRenderMessage(this.builder)
+        RenderMessage.addRenderType(this.builder, centered ? RenderType.DrawCenteredRect3D : RenderType.DrawRect3D)
+        RenderMessage.addStart(this.builder, vector.convertToFlat(this.builder))
+        RenderMessage.addScaleX(this.builder, width)
+        RenderMessage.addScaleY(this.builder, height)
+        RenderMessage.addIsFilled(this.builder, filled)
+        RenderMessage.addColor(this.builder, colorFlat)
+        this.renderList.push(RenderMessage.endRenderMessage(this.builder))
     }
 
     black() {
-        return new this.Color(255, 0, 0, 0);
+        return new this.Color(255, 0, 0, 0)
     }
 
     white() {
-        return new this.Color(255, 255, 255, 255);
+        return new this.Color(255, 255, 255, 255)
     }
 
     gray() {
-        return new this.Color(255, 128, 128, 128);
+        return new this.Color(255, 128, 128, 128)
     }
 
     blue() {
-        return new this.Color(255, 0, 0, 255);
+        return new this.Color(255, 0, 0, 255)
     }
 
     red() {
-        return new this.Color(255, 255, 0, 0);
+        return new this.Color(255, 255, 0, 0)
     }
 
     green() {
-        return new this.Color(255, 0, 128, 0);
+        return new this.Color(255, 0, 128, 0)
     }
 
     lime() {
-        return new this.Color(255, 0, 255, 0);
+        return new this.Color(255, 0, 255, 0)
     }
 
     yellow() {
-        return new this.Color(255, 255, 255, 0);
+        return new this.Color(255, 255, 255, 0)
     }
 
     orange() {
-        return new this.Color(255, 225, 128, 0);
+        return new this.Color(255, 225, 128, 0)
     }
 
     cyan() {
-        return new this.Color(255, 0, 255, 255);
+        return new this.Color(255, 0, 255, 255)
     }
 
     pink() {
-        return new this.Color(255, 255, 0, 255);
+        return new this.Color(255, 255, 0, 255)
     }
 
     purple() {
-        return new this.Color(255, 128, 0, 128);
+        return new this.Color(255, 128, 0, 128)
     }
 
     teal() {
-        return new this.Color(255, 0, 128, 128);
+        return new this.Color(255, 0, 128, 128)
     }
 }
 
-module.exports = RenderManager;
+module.exports = RenderManager
