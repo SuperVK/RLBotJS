@@ -88,6 +88,7 @@ class BotManager {
             while (!this.interface.IsInitialized()) {
 
             }
+            this.fieldInfo = this.getFieldInfo();
             resolve()
         })
     }
@@ -136,8 +137,6 @@ class BotManager {
                 console.error(JSON.stringify(error));
             });
         });
-
-        this.fieldInfo = this.getFieldInfo();
 
         // start interval
         setInterval(() => this.updateBots(), 1000 / 60);
