@@ -58,6 +58,8 @@ class BotManager {
             'memcpy': [ref.types.void, [ref.types.uint64, ref.types.uint64, ref.types.uint32]] // even more 64 bit pointers
         });
 
+        this.fieldInfo = null;
+
         console.log("Waiting for dll to initialize...");
     }
 
@@ -135,6 +137,8 @@ class BotManager {
             });
         });
 
+        this.fieldInfo = this.getFieldInfo();
+
         // start interval
         setInterval(() => this.updateBots(), 1000 / 60);
     }
@@ -201,16 +205,16 @@ class BotManager {
         if(this.interface == null) return
         let gameTickPacket = this.getGameTickPacket()
         let ballPrediction = this.getBallPrediction()
-        let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
+        //let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
                 var _input = new SimpleController()
                 if(this.debug) {
-                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
                 } else {
                     try {
-                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
+                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
                     } catch (e) {
                         console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}:\n ${e.toString()}`);
                         _input = new SimpleController()
