@@ -48,7 +48,7 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
         if self.is_executable_configured() and AUTORUN:
             return HelperProcessRequest(python_file_path=None, key=self.name + str(self.port), executable=self.auto_run_path, current_working_directory=os.path.dirname(self.auto_run_path))
 
-        self.logger.error("The path to \"auto-run.bat\" is not a file! Please confirm the auto run script is a file or run Node.js manually.")
+        self.logger.error("The path to \"auto-run.bat\" is not a file or autorun has been disabled! Please confirm the auto run script is a file or run Node.js manually.")
         return None
 
     def is_executable_configured(self):
