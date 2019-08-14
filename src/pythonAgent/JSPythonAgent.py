@@ -9,6 +9,7 @@ from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.structures import game_interface
 
+AUTORUN = True
 
 class BaseJavaScriptAgent(BaseIndependentAgent):
 
@@ -44,7 +45,7 @@ class BaseJavaScriptAgent(BaseIndependentAgent):
             self.retire()
 
     def get_helper_process_request(self):
-        if self.is_executable_configured():
+        if self.is_executable_configured() and AUTORUN:
             return HelperProcessRequest(python_file_path=None, key=self.name + str(self.port), executable=self.auto_run_path, current_working_directory=os.path.dirname(self.auto_run_path))
 
         self.logger.error("The path to \"auto-run.bat\" is not a file! Please confirm the auto run script is a file or run Node.js manually.")
