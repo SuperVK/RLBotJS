@@ -263,7 +263,8 @@ class BotManager {
     getFieldInfo() {
         let bytebuffer = this.interface.UpdateFieldInfoFlatbuffer();
 
-        let buffer = new Buffer(bytebuffer.size);
+        let buffer = new Buffer.alloc(bytebuffer.size);
+
 
         this.windows.memcpy(
             ref.address(buffer),
