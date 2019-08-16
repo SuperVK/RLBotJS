@@ -14,7 +14,7 @@ You'll need:
 
 - Python 3.7
 
-- windows-build-tools, which you can get with node.js by running `$ npm install -g windows-build-tools`. This is used to build some dependencies that are in C or C++.
+- windows-build-tools, which you can get with node.js by running `$ npm install -g windows-build-tools` **in a administrator terminal**. This is used to build some dependencies that are in C or C++.
 
 1. Fork this repo (if you aren't a collaborator)
 
@@ -32,7 +32,7 @@ You'll need:
 
 1. Go into the example: `$ cd ../RLBotJavascriptExample`
 
-1. Link it with the changes you made: `$ npm link rlbot-test`. If you skipped step 9 run `$ npm install ../RLBotJS`
+1. Link it with the changes you made: `$ npm link rlbot-test`. **If you skipped step 7 run `$ npm install ../RLBotJS` instead**
 
 1. Test your changes with `run-gui.bat` in the rlbot folder, `run.bat` in the rlbot folder, or the new GUI
 
