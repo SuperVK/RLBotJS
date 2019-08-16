@@ -88,7 +88,6 @@ class BotManager {
             while (!this.interface.IsInitialized()) {
 
             }
-            this.fieldInfo = this.getFieldInfo();
             resolve()
         })
     }
@@ -138,8 +137,41 @@ class BotManager {
             });
         });
 
-        // start interval
-        setInterval(() => this.updateBots(), 1000 / 60);
+        // Get field info
+        const getValidFieldInfo = function() {
+            try {
+                var fieldInfoObject = this.getFieldInfo();
+                if (
+                    fieldInfoObject instanceof FieldInfo
+                    && !(
+                        // Second check for boostPads disabled because of DropShot
+                        /*(*/fieldInfoObject.boostPads === [] //|| fieldInfoObject.boostPads[0] === undefined)
+                        && (
+                            fieldInfoObject.goals === []
+                            || fieldInfoObject.goals[0] === undefined
+                        )
+                    )
+                ) {
+                    console.log("FieldInfo valid!");
+                    return fieldInfoObject;
+                }
+                else throw "FieldInfo was not valid!";
+            } catch (e) {
+                console.log(`Error getting FieldInfo! Trying again... Error: ${e.toString()}`);
+                return getValidFieldInfo();
+            }
+        }
+
+        console.log("Field info will be gotten and the bot loop will start in 2.5 seconds. Please wait.");
+
+        setTimeout(function() {
+            console.log("Getting FieldInfo...");
+            this.fieldInfo = getValidFieldInfo();
+
+            console.log("Starting the bot update loop...");
+            // start interval
+            setInterval(() => this.updateBots(), 1000 / 60);
+        }, 2500); // wait for 2.5 seconds before getting fieldinfo and starting bot loop
     }
 
     sendInput(botIndex, botInput) {
@@ -208,7 +240,7 @@ class BotManager {
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
-                var _input = new SimpleController()
+                var _input = new SimpleController();
                 if(this.debug) {
                     _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
                 } else {
@@ -216,7 +248,7 @@ class BotManager {
                         _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
                     } catch (e) {
                         console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}:\n ${e.toString()}`);
-                        _input = new SimpleController()
+                        _input = new SimpleController();
                     }
                 }
                 this.sendInput(i, _input);
@@ -227,7 +259,7 @@ class BotManager {
     getGameTickPacket() {
         var bytebuffer = this.interface.UpdateLiveDataPacketFlatbuffer();
 
-        var buffer = new Buffer(bytebuffer.size);
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
@@ -245,7 +277,7 @@ class BotManager {
     getBallPrediction() {
         let bytebuffer = this.interface.GetBallPrediction();
 
-        let buffer = new Buffer(bytebuffer.size);
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
@@ -263,8 +295,7 @@ class BotManager {
     getFieldInfo() {
         let bytebuffer = this.interface.UpdateFieldInfoFlatbuffer();
 
-        let buffer = new Buffer.alloc(bytebuffer.size);
-
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
