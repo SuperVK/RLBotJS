@@ -32,7 +32,7 @@ You'll need:
 
 1. Go into the example: `$ cd ../RLBotJavascriptExample`
 
-1. Link it with the changes you made: `$ npm link rlbot-test`. If you skipped step 9 run `$ npm install ../RLBotJS`
+1. Link it with the changes you made: `$ npm link rlbot-test`. If you skipped step 9 run `$ npm install ../RLBotJS` **instead**
 
 1. Test your changes with `run-gui.bat` in the rlbot folder, `run.bat` in the rlbot folder, or the new GUI
 
