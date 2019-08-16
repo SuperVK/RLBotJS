@@ -254,6 +254,12 @@ class BotManager {
                         _input = new SimpleController();
                     }
                 }
+
+                if (!_input instanceof SimpleController) {
+                    console.error(`The output of ${this.bots[i].name.toString()} wasn't a SimpleController object! The output is now an un-modified SimpleController.`);
+                    _input = new SimpleController();
+                }
+
                 this.sendInput(i, _input);
             }
         }
