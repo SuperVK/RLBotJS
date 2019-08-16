@@ -224,7 +224,7 @@ class BotManager {
     getGameTickPacket() {
         var bytebuffer = this.interface.UpdateLiveDataPacketFlatbuffer();
 
-        var buffer = new Buffer(bytebuffer.size);
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
@@ -242,7 +242,7 @@ class BotManager {
     getBallPrediction() {
         let bytebuffer = this.interface.GetBallPrediction();
 
-        let buffer = new Buffer(bytebuffer.size);
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
@@ -260,7 +260,7 @@ class BotManager {
     getFieldInfo() {
         let bytebuffer = this.interface.UpdateFieldInfoFlatbuffer();
 
-        let buffer = new Buffer(bytebuffer.size);
+        let buffer = Buffer.alloc(bytebuffer.size);
 
         this.windows.memcpy(
             ref.address(buffer),
