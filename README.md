@@ -14,7 +14,7 @@ You'll need:
 
 - Python 3.7
 
-- windows-build-tools, which you can get with node.js by running `$ npm install -g windows-build-tools`. This is used to build some dependencies that are in C or C++.
+- windows-build-tools, which you can get with node.js by running `$ npm install -g windows-build-tools` **in a administrator terminal**. This is used to build some dependencies that are in C or C++.
 
 1. Fork this repo (if you aren't a collaborator)
 
