@@ -137,7 +137,7 @@ class BotManager {
             });
         });
 
-        // Get field info
+        /*// Get field info
         const getValidFieldInfo = function() {
             try {
                 var fieldInfoObject = this.getFieldInfo();
@@ -145,7 +145,7 @@ class BotManager {
                     fieldInfoObject instanceof FieldInfo
                     && !(
                         // Second check for boostPads disabled because of DropShot
-                        /*(*/fieldInfoObject.boostPads === [] //|| fieldInfoObject.boostPads[0] === undefined)
+                        (fieldInfoObject.boostPads === [] //|| fieldInfoObject.boostPads[0] === undefined)
                         && (
                             fieldInfoObject.goals === []
                             || fieldInfoObject.goals[0] === undefined
@@ -171,7 +171,10 @@ class BotManager {
             console.log("Starting the bot update loop...");
             // start interval
             setInterval(() => this.updateBots(), 1000 / 60);
-        }, 2500); // wait for 2.5 seconds before getting fieldinfo and starting bot loop
+        }, 2500); // wait for 2.5 seconds before getting fieldinfo and starting bot loop*/
+        console.log("Starting the bot update loop...");
+        // start interval
+        setInterval(() => this.updateBots(), 1000 / 60);
     }
 
     sendInput(botIndex, botInput) {
@@ -236,16 +239,16 @@ class BotManager {
         if(this.interface == null) return
         let gameTickPacket = this.getGameTickPacket()
         let ballPrediction = this.getBallPrediction()
-        //let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
+        let fieldInfo = this.fieldInfo ? this.fieldInfo : this.getFieldInfo()
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
                 var _input = new SimpleController();
                 if(this.debug) {
-                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
+                    _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
                 } else {
                     try {
-                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, this.fieldInfo);
+                        _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
                     } catch (e) {
                         console.error(`An error occurred when running a bot with the name of ${this.bots[i].name.toString()}:\n ${e.toString()}`);
                         _input = new SimpleController();
