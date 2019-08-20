@@ -110,10 +110,12 @@ class BotManager {
                         this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this.getFieldInfo());
                         this.bots[Number(message[3])]._manager = this
                         this.bots[Number(message[3])].renderer = new RenderManager(this, Number(message[3]))
+                        console.log('Added a bot ' + message[1] + ' with the index ' + message[3]);
                         break;
 
                     case 'remove':
                         this.bots[Number(message[1])] = null;
+                        console.log('Removed a bot with index' + message[1]);
                         break;
 
                     default:
@@ -124,7 +126,7 @@ class BotManager {
 
         server.listen(this.port, this.ip, function () {
             var serverInfoJson = JSON.stringify(server.address());
-            //console.log('TCP server listen on address : ' + serverInfoJson);
+            console.log('TCP server listening on address : ' + serverInfoJson);
 
             server.on('close', function () {
                 console.log('TCP server socket is closed.');
