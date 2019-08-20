@@ -202,7 +202,11 @@ class BotManager {
 
     updateBots() {
         if (this.interface == null) return;
-
+        
+        var gameTickPacket;
+        var ballPrediction;
+        var fieldInfo;
+        
         var bytebufferGTP = this.interface.UpdateLiveDataPacketFlatbuffer();
 
         if (bytebufferGTP.size > 4) {
@@ -211,7 +215,7 @@ class BotManager {
             this.interface.Free(bytebufferGTP.ptr);
             var flatGTPBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(GTPBuffer));
             var flatGameTickPacket = rlbot.flat.GameTickPacket.getRootAsGameTickPacket(flatGTPBuffer);
-            let gameTickPacket = new GameTickPacket(flatGameTickPacket);
+            gameTickPacket = new GameTickPacket(flatGameTickPacket);
 
             if (this.lastTime != gameTickPacket.gameInfo.secondsElapsed) {
                 let bytebufferBP = this.interface.GetBallPrediction();
@@ -224,7 +228,7 @@ class BotManager {
                     this.interface.Free(bytebufferBP.ptr);
                     let flatBPBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(BPBuffer));
                     let flatBallPrediction = rlbot.flat.BallPrediction.getRootAsBallPrediction(flatBPBuffer);
-                    let ballPrediction = new BallPrediction(flatBallPrediction);
+                    ballPrediction = new BallPrediction(flatBallPrediction);
 
                     // Field Info
                     let FIBuffer = Buffer.alloc(bytebufferFI.size);
@@ -232,6 +236,7 @@ class BotManager {
                     this.interface.Free(bytebufferFI.ptr);
                     let flatFIBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(FIBuffer));
                     let flatFieldInfo = rlbot.flat.FieldInfo.getRootAsFieldInfo(flatFIBuffer);
+                    fieldInfo = new FieldInfo(flatFieldInfo);
                 }
                 else {
                     return;
@@ -246,12 +251,6 @@ class BotManager {
         else {
             return;
         }
-
-
-
-        //let gameTickPacket = this.getGameTickPacket()
-        //let ballPrediction = this.getBallPrediction()
-        //let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
