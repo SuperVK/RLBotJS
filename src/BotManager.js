@@ -22,21 +22,21 @@ class BotManager {
         this.port = port ? port : portFromFile
         this.ip = ip;
         this.debug = debug
-        for(let i = 2; i < process.argv.length; i += 2) {
-            switch(process.argv[i]) {
+        for (let i = 2; i < process.argv.length; i += 2) {
+            switch (process.argv[i]) {
                 case '-d':
                 case '--debug': {
-                    this.debug = (process.argv[i+1] == 'true')
+                    this.debug = (process.argv[i + 1] == 'true')
                     break;
                 }
                 case '-p':
                 case '--port': {
-                    this.port = (process.argv[i+1] == 'true')
+                    this.port = (process.argv[i + 1] == 'true')
                     break;
                 }
                 case '-i':
                 case '--ip': {
-                    this.ip = (process.argv[i+1] == 'true')
+                    this.ip = (process.argv[i + 1] == 'true')
                     break;
                 }
             }
@@ -57,6 +57,9 @@ class BotManager {
         this.windows = ffi.Library('msvcrt', {
             'memcpy': [ref.types.void, [ref.types.uint64, ref.types.uint64, ref.types.uint32]] // even more 64 bit pointers
         });
+
+        // Variable for dynamic refresh rate
+        this.lastTime = 0.0;
 
         console.log("Waiting for dll to initialize...");
     }
@@ -99,14 +102,14 @@ class BotManager {
             socket.setEncoding('ascii');
             socket.on('data', (data) => {
                 var message = data.toString().split('\n');
-                if(message[4] != null && this.interfacePath == null) {
+                if (message[4] != null && this.interfacePath == null) {
                     this.interfacePath = message[4]
                     this.loadInterface()
                 }
                 switch (message[0]) {
                     case 'add':
                         if (message.length < 4) break;
-                        if(this.bots[Number(message[3])] != undefined) return
+                        if (this.bots[Number(message[3])] != undefined) return
                         this.bots[Number(message[3])] = new this.botClass(message[1], Number(message[2]), Number(message[3]), this.getFieldInfo());
                         this.bots[Number(message[3])]._manager = this
                         this.bots[Number(message[3])].renderer = new RenderManager(this, Number(message[3]))
@@ -135,8 +138,8 @@ class BotManager {
             });
         });
 
-        // start interval
-        setInterval(() => this.updateBots(), 1000 / 60);
+        // Start interval (set to 4 cause its a little faster than 240 packets per second)
+        setInterval(() => this.updateBots(), 4);
     }
 
     sendInput(botIndex, botInput) {
@@ -198,15 +201,61 @@ class BotManager {
     }
 
     updateBots() {
-        if(this.interface == null) return
-        let gameTickPacket = this.getGameTickPacket()
-        let ballPrediction = this.getBallPrediction()
-        let fieldInfo = this.getFieldInfo() //pretty sure this can optimizes as this doesn't change mid game, and doesn't need to be called every frame
+        if (this.interface == null) return;
+        
+        var gameTickPacket;
+        var ballPrediction;
+        var fieldInfo;
+        
+        var bytebufferGTP = this.interface.UpdateLiveDataPacketFlatbuffer();
+
+        if (bytebufferGTP.size > 4) {
+            let GTPBuffer = Buffer.alloc(bytebufferGTP.size);
+            this.windows.memcpy(ref.address(GTPBuffer), bytebufferGTP.ptr, bytebufferGTP.size);
+            this.interface.Free(bytebufferGTP.ptr);
+            var flatGTPBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(GTPBuffer));
+            var flatGameTickPacket = rlbot.flat.GameTickPacket.getRootAsGameTickPacket(flatGTPBuffer);
+            gameTickPacket = new GameTickPacket(flatGameTickPacket);
+
+            if (this.lastTime != gameTickPacket.gameInfo.secondsElapsed) {
+                let bytebufferBP = this.interface.GetBallPrediction();
+                let bytebufferFI = this.interface.UpdateFieldInfoFlatbuffer();
+
+                if (bytebufferBP.size > 4 && bytebufferFI.size > 4) {
+                    // Ball prediction
+                    let BPBuffer = Buffer.alloc(bytebufferBP.size);
+                    this.windows.memcpy(ref.address(BPBuffer), bytebufferBP.ptr, bytebufferBP.size);
+                    this.interface.Free(bytebufferBP.ptr);
+                    let flatBPBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(BPBuffer));
+                    let flatBallPrediction = rlbot.flat.BallPrediction.getRootAsBallPrediction(flatBPBuffer);
+                    ballPrediction = new BallPrediction(flatBallPrediction);
+
+                    // Field Info
+                    let FIBuffer = Buffer.alloc(bytebufferFI.size);
+                    this.windows.memcpy(ref.address(FIBuffer), bytebufferFI.ptr, bytebufferFI.size);
+                    this.interface.Free(bytebufferFI.ptr);
+                    let flatFIBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(FIBuffer));
+                    let flatFieldInfo = rlbot.flat.FieldInfo.getRootAsFieldInfo(flatFIBuffer);
+                    fieldInfo = new FieldInfo(flatFieldInfo);
+                }
+                else {
+                    return;
+                }
+
+                this.lastTime = gameTickPacket.gameInfo.secondsElapsed;
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
                 var _input = new SimpleController()
-                if(this.debug) {
+                if (this.debug) {
                     _input = this.bots[i].getOutput(gameTickPacket, ballPrediction, fieldInfo);
                 } else {
                     try {
