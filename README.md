@@ -357,7 +357,7 @@ this.setGameState(new GameState(ball))
     -   `Savage`: `26` - Savage!
     -   `Okay`: `27` - Okay.
 -   `apologies`
-    -   `Cursing`: `28` - [I forgot]
+    -   `Cursing`: `28` - $#@%!
     -   `NoProblem`: `29` - No problem!
     -   `Whoops`: `30` - Whoops.
     -   `Sorry`: `31` - Sorry!
