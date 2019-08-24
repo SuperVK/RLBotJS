@@ -3,7 +3,7 @@ var ffi = require('ffi');
 var Struct = require('ref-struct');
 const path = require('path')
 const fs = require('fs')
-const RenderManager = require('./utils/RenderManager')
+const { RenderManager } = require('./utils/RenderManager')
 const portFromFile = Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')

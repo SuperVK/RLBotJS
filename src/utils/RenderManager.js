@@ -241,4 +241,7 @@ class RenderManager {
     }
 }
 
-module.exports = RenderManager
+module.exports = {
+    RenderManager: RenderManager,
+    Color: Color
+}
