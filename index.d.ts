@@ -105,8 +105,7 @@ declare module "rlbot-test" {
 
 
     class Renderer {
-        Color: Color;
-        beingRendering(groupID?: number): void;
+        beginRendering(groupID?: number): void;
         endRendering(): void;
         drawString2D(
             x: number,
@@ -206,7 +205,7 @@ declare module "rlbot-test" {
         slices: Slice[];
     }
 
-    export class Simplecontroller {
+    export class SimpleController {
         throttle: number;
         steer: number;
         pitch: number;
@@ -217,9 +216,9 @@ declare module "rlbot-test" {
         handbrake: boolean;
         useItem: boolean;
     }
-
-    export enum quickChats {
-        information = {
+    
+    export namespace quickChats {
+        enum information {  
             IGotIt = 0,
             NeedBoost = 1,
             TakeTheShot = 2,
@@ -229,6 +228,9 @@ declare module "rlbot-test" {
             AllYours = 6,
             InPosition = 7,
             Incoming = 8,
+        }
+
+        enum compliments {
             NiceShot = 9,
             GreatPass = 10,
             Thanks = 11,
@@ -237,31 +239,8 @@ declare module "rlbot-test" {
             WhatAPlay = 14,
             GreatClear = 15,
             NiceBlock = 16,
-        },
-        compliments = {
-            NiceShot = 9,
-            GreatPass = 10,
-            Thanks = 11,
-            WhatASave = 12,
-            NiceOne = 13,
-            WhatAPlay = 14,
-            GreatClear = 15,
-            NiceBlock = 16,
-        },
-        reactions = {
-            OMG = 17,
-            Noooo = 18,
-            Wow = 19,
-            CloseOne = 20,
-            NoWay = 21,
-            HolyCow = 22,
-            Whew = 23,
-            Siiiick = 24,
-            Calculated = 25,
-            Savage = 26,
-            Okay = 27,
-        },
-        apologies = {
+        }
+        enum apologies {
             Cursing = 28,
             NoProblem = 29,
             Whoops = 30,
@@ -269,8 +248,8 @@ declare module "rlbot-test" {
             MyBad = 32,
             Oops = 33,
             MyFault = 34,
-        },
-        postGame = {
+        }
+        enum postGame {
             Gg = 35,
             WellPlayed = 36,
             ThatWasFun = 37,
@@ -279,8 +258,8 @@ declare module "rlbot-test" {
             WhatAGame = 40,
             NiceMoves = 41,
             EverybodyDance = 42,
-        },
-        custom = {
+        }
+        enum custom {
             /// Waste of CPU cycles
             Toxic_WasteCPU = 44,
             /// Git gud*
@@ -310,7 +289,6 @@ declare module "rlbot-test" {
             /// Are you <Insert Pro>Bot? *
             Compliments_Pro = 57,
         }
-
     }
 
     export class BaseAgent {
@@ -319,8 +297,17 @@ declare module "rlbot-test" {
         index: number;
         fieldInfo: FieldInfo;
         renderer: Renderer;
+        constructor(name: string, team: number, index: number, fieldInfo: FieldInfo)
         getOutput(gameTickPacket: GameTickPacket, ballPrediction: BallPrediction): SimpleController;
-        sendQuickChat(QuickChatSelection: quickChats, teamOnly: boolean): void;
+        sendQuickChat(
+            QuickChatSelection: quickChats.compliments|quickChats.information|quickChats.apologies|quickChats.postGame|quickChats.custom, 
+            teamOnly: boolean
+        ): void;
         setGameState(gameState: GameState): void;
+    }
+
+    export class Manager {
+        constructor(botClass: typeof BaseAgent, debug?: boolean);
+        start(): void;
     }
 }
