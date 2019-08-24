@@ -212,7 +212,7 @@ declare module "rlbot-test" {
         roll: number;
         yaw: number;
         boost: boolean;
-        jumped: boolean;
+        jump: boolean;
         handbrake: boolean;
         useItem: boolean;
     }
