@@ -298,7 +298,7 @@ declare module "rlbot-test" {
         fieldInfo: FieldInfo;
         renderer: Renderer;
         constructor(name: string, team: number, index: number, fieldInfo: FieldInfo)
-        getOutput(gameTickPacket: GameTickPacket, ballPrediction: BallPrediction): SimpleController;
+        getOutput(gameTickPacket: GameTickPacket, ballPrediction: BallPrediction, fieldInfo: FieldInfo): SimpleController;
         sendQuickChat(
             QuickChatSelection: quickChats.compliments|quickChats.information|quickChats.apologies|quickChats.postGame|quickChats.custom, 
             teamOnly: boolean
