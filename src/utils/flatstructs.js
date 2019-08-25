@@ -70,6 +70,7 @@ function PlayerInfo(flat) {
     this.doubleJumped = flat.doubleJumped()
     this.name = flat.name()
     this.boost = flat.boost()
+    this.team = flat.team()
 }
 
 function BoostPadState(flat) {

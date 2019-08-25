@@ -148,6 +148,7 @@ declare module "rlbot-test" {
         doubleJumped: boolean;
         name: string;
         boost: number;
+        team: number;
     }
 
     interface BoostPadState {
