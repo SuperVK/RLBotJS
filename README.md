@@ -47,7 +47,7 @@ The first thing you'll want to do is start a class that extends the `rlbot.BaseA
 Example:
 
 ```js
-const { BaseAgent, SimpleController } = require("rlbot-test");
+const { BaseAgent, SimpleController, Manager } = require("rlbot-test");
 
 class MyBot extends BaseAgent {
     constructor(name, team, index, fieldInfo) {
