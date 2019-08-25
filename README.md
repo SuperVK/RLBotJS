@@ -200,7 +200,8 @@ this.setGameState(new GameState(ball))
       "jumped": false,
       "doubleJumped": false,
       "name": "Bot",
-      "boost": 34
+      "boost": 34,
+      "team": 0
     },
     [...] // Order based on index
   ],
