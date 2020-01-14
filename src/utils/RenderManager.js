@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 const flatbuffers = require('flatbuffers').flatbuffers
 const path = require('path')
-const ref = require('ref')
+const ref = require('ref-napi')
 const { RenderMessage, RenderType, RenderGroup } = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat;
 const flat = require(path.join(__dirname, '../../rlbot/rlbot_generated.js')).rlbot.flat
 const { Vector3 } = require('./GameState')

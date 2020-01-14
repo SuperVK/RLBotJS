@@ -1,10 +1,10 @@
-var ref = require('ref');
-var ffi = require('ffi');
-var Struct = require('ref-struct');
+var ref = require('ref-napi');
+var ffi = require('ffi-napi');
+var Struct = require('ref-struct-di')(ref);
 const path = require('path')
 const fs = require('fs')
 const { RenderManager } = require('./utils/RenderManager')
-const portFromFile = Number(fs.readFileSync(path.join(__dirname, '/pythonAgent/port.cfg')).toString());
+const portFromFile = Number(fs.readFileSync('./pythonAgent/port.cfg').toString());
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
 const { GameState } = require('./utils/GameState')
@@ -20,27 +20,8 @@ class BotManager {
     constructor(botClass, debug = false, port, ip = '127.0.0.1') {
         this.botClass = botClass
         this.port = port ? port : portFromFile
-        this.ip = ip;
         this.debug = debug
-        for (let i = 2; i < process.argv.length; i += 2) {
-            switch (process.argv[i]) {
-                case '-d':
-                case '--debug': {
-                    this.debug = (process.argv[i + 1] == 'true')
-                    break;
-                }
-                case '-p':
-                case '--port': {
-                    this.port = (process.argv[i + 1] == 'true')
-                    break;
-                }
-                case '-i':
-                case '--ip': {
-                    this.ip = (process.argv[i + 1] == 'true')
-                    break;
-                }
-            }
-        }
+        this.ip = ip
 
         this.bots = [];
         this.ByteBuffer = Struct({
