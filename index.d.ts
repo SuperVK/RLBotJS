@@ -1,4 +1,4 @@
-declare module "rlbot-test" {
+declare module "rlbotjs" {
     export class Vector3 { 
         x: number;
         y: number;
