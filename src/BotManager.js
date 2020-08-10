@@ -225,20 +225,14 @@ class BotManager {
                     let flatFIBuffer = new flatbuffers.ByteBuffer(Uint8Array.from(FIBuffer));
                     let flatFieldInfo = rlbot.flat.FieldInfo.getRootAsFieldInfo(flatFIBuffer);
                     fieldInfo = new FieldInfo(flatFieldInfo);
-                }
-                else {
-                    return;
-                }
+                } else return;
+                
 
                 this.lastTime = gameTickPacket.gameInfo.secondsElapsed;
-            }
-            else {
-                return;
-            }
-        }
-        else {
-            return;
-        }
+            } else return;
+            
+        } else return;
+        
 
         for (let i = 0; i < this.bots.length; i++) {
             if (this.bots[i] != null) {
