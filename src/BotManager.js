@@ -4,7 +4,6 @@ var Struct = require('ref-struct-di')(ref);
 const path = require('path')
 const fs = require('fs')
 const { RenderManager } = require('./utils/RenderManager')
-const portFromFile = Number(fs.readFileSync('./pythonAgent/port.cfg').toString());
 
 const { GameTickPacket, BallPrediction, FieldInfo } = require('./utils/flatstructs')
 const { GameState } = require('./utils/GameState')
@@ -17,9 +16,9 @@ const net = require('net');
 var rlbot = require(path.join(__dirname, '../rlbot/rlbot_generated.js')).rlbot;
 
 class BotManager {
-    constructor(botClass, debug = false, port, ip = '127.0.0.1') {
+    constructor(botClass, port, debug = false, ip = '127.0.0.1') {
         this.botClass = botClass
-        this.port = port ? port : portFromFile
+        this.port = port
         this.debug = debug
         this.ip = ip
 
@@ -120,6 +119,12 @@ class BotManager {
                 console.error(JSON.stringify(error));
             });
         });
+
+        server.on('error', (e) => {
+            if(e.code == 'EADDRINUSE') {
+                console.log('[NodeJS] Port already in use, if you aren\'t debugging try another port')
+            }
+        })
 
         // Start interval (set to 4 cause its a little faster than 240 packets per second)
         setInterval(() => this.updateBots(), 4);
