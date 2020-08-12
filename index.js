@@ -1,7 +1,7 @@
 const GameStateUtil = require('./src/utils/GameState')
 
 module.exports = {
-    BaseAgent: require('./src/baseAgent'),
+    BaseAgent: require('./src/BaseAgent'),
     SimpleController: require('./src/utils/SimpleController'),
     Manager: require('./src/BotManager'),
     quickChats: require('./src/utils/quickchats'),
