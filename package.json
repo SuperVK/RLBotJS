@@ -1,6 +1,6 @@
 {
   "name": "rlbotjs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library that helps with rlbot",
   "main": "index.js",
   "author": "SuperVK",
