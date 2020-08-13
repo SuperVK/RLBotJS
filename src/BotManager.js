@@ -44,6 +44,11 @@ class BotManager {
         console.log("Waiting for dll to initialize...");
     }
 
+    newBotClass(botClass) {
+        this.botClass = botClass
+        this.bots = []
+    }
+
     loadInterface() {
         this.interface = ffi.Library(path.join(this.interfacePath, '/RLBot_Core_Interface'), {
             'IsInitialized': [ref.types.bool, []],
