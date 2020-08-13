@@ -308,7 +308,7 @@ declare module "rlbotjs" {
     }
 
     export class Manager {
-        constructor(botClass: typeof BaseAgent, debug?: boolean);
+        constructor(botClass: typeof BaseAgent, port: Number, debug?: boolean);
         start(): void;
     }
 }
